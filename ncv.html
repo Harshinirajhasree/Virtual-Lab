@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NCV Virtual Lab – Median Motor Nerve Conduction</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf1f1;--panel:#fff;--ink:#17323a;--mut:#58707a;--line:#cbdadc;--acc:#0f6b73;--acc2:#e3f1f1;--bad:#b8392a;--ok:#1b8a55;--warn:#a86a00;--skin:#f3cfae;--skin2:#dfae86;--scope:#0a1c21;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a1d;--panel:#14262a;--ink:#e2eeee;--mut:#93aab0;--line:#27414a;--acc:#4fc3cc;--acc2:#183a40;--bad:#ff7a66;--ok:#4fd18b;--warn:#f0b34a;--skin:#c99772;--skin2:#a8744f}}
+:root[data-theme="dark"]{--bg:#0d1a1d;--panel:#14262a;--ink:#e2eeee;--mut:#93aab0;--line:#27414a;--acc:#4fc3cc;--acc2:#183a40;--bad:#ff7a66;--ok:#4fd18b;--warn:#f0b34a;--skin:#c99772;--skin2:#a8744f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+header{background:#0f3a40;color:#eaf6f6;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:19px;margin:0;font-weight:600}header p{margin:0;font-size:13px;opacity:.8}
+.sim{background:#ffd37a;color:#4a3000;font-weight:600;font-size:12px;padding:3px 10px;border-radius:20px}
+.wrap{max-width:1280px;margin:0 auto;padding:14px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:14px}
+@media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.card h2{font-size:15px;margin:0 0 8px;font-weight:600;color:var(--acc)}
+.full{grid-column:1/-1}
+button,select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 12px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc)}button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,svg .drag:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+:root[data-theme="dark"] button.pri{color:#06262a}
+.hb button{background:#164c53;color:#eaf6f6;border-color:#2d6a72}.hb button:disabled{opacity:.4}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
+.row label{font-size:13px;color:var(--mut)}
+input[type=range]{accent-color:var(--acc);flex:1;min-width:120px}
+#arm{width:100%;height:auto;background:var(--acc2);border-radius:8px;touch-action:none}
+#arm text{font:12px "IBM Plex Sans",sans-serif;fill:var(--ink)}
+.site{cursor:pointer}.site circle{fill:var(--panel);stroke:var(--acc);stroke-width:2.5}.site.on circle{fill:#e0a030;stroke:#8a5a00}
+.tg{fill:none;stroke:var(--mut);stroke-dasharray:4 3;stroke-width:1.6}.tg.ok{stroke:var(--ok);stroke-dasharray:0}
+.drag{cursor:grab}
+#thenar{fill:rgba(190,90,70,.28);transform-box:fill-box;transform-origin:center}
+.tw{animation:tw .5s ease-out}@keyframes tw{40%{transform:scale(var(--s,1.2))}}
+#ring{opacity:0;fill:none;stroke:#e0a030;stroke-width:3}.fl{animation:fl .6s ease-out}@keyframes fl{from{opacity:1;r:8}to{opacity:0;r:34}}
+#scopeBox{background:var(--scope);border-radius:8px;padding:8px}
+canvas{width:100%;height:auto;display:block;border-radius:5px;cursor:crosshair;touch-action:none}
+.rd{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+.rd div{background:var(--acc2);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--mut)}
+.rd b{display:block;font:500 15px "IBM Plex Mono",monospace;color:var(--ink)}
+.msg{font-size:13px;padding:6px 10px;border-radius:7px;background:var(--acc2);margin:6px 0}
+.msg.bad{color:var(--bad)}.msg.ok{color:var(--ok)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none}.tabs button.on{border-color:var(--acc);color:var(--acc);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+ol.steps li{border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:flex;gap:10px;align-items:flex-start}
+ol.steps li.done{opacity:.6}ol.steps li.cur{border-color:var(--acc);background:var(--acc2);animation:pl 1.6s ease-in-out infinite}
+@keyframes pl{50%{box-shadow:0 0 0 3px rgba(15,107,115,.2)}}
+.ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px;display:grid;place-items:center;font-size:12px}
+.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
+.bar{height:6px;background:var(--line);border-radius:5px;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--ok);border-radius:5px;transition:width .4s}
+.sm{font-size:13px;color:var(--mut)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}th{background:var(--acc2)}
+td input{width:90px;font:500 14px "IBM Plex Mono",monospace;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:4px 6px}
+.tw2{overflow-x:auto}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}.opt.c{border-color:var(--ok);background:rgba(27,138,85,.14)}.opt.w{border-color:var(--bad);background:rgba(184,57,42,.12)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f3a40;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9}.toast.on{opacity:1}
+code{font-family:"IBM Plex Mono",monospace}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<header><div><h1>Virtual Lab: Measurement of Nerve Conduction Velocity (NCV)</h1><p>Median nerve (motor) · recording from Abductor Pollicis Brevis · RMS Aleron 202 / “Nerve Guide” model</p></div>
+<div class="row hb"><span class="sim">SIMULATED DATA – educational model, not clinical</span>
+<button id="bStart" class="pri">Start</button><button id="bPause" disabled>Pause</button><button id="bReset">Reset</button></div></header>
+
+<div class="wrap">
+<section class="card"><h2>Subject arm – median nerve and electrodes (palm up)</h2>
+<svg id="arm" viewBox="0 0 900 310" role="img" aria-label="Arm with median nerve, stimulation sites and electrode targets">
+<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--skin)"/><stop offset="1" stop-color="var(--skin2)"/></linearGradient></defs>
+<path d="M30,98 Q200,100 380,124 L700,134 Q780,112 860,128 Q895,160 870,190 Q820,215 790,240 Q745,252 715,205 L700,188 L380,198 Q200,218 30,218 Q14,158 30,98Z" fill="url(#sk)" stroke="var(--skin2)" stroke-width="2"/>
+<ellipse id="thenar" cx="745" cy="208" rx="40" ry="21"/>
+<path d="M770,214 L812,232" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
+<line x1="380" y1="125" x2="380" y2="198" stroke="var(--skin2)" stroke-dasharray="3 3"/><line x1="696" y1="134" x2="696" y2="188" stroke="var(--skin2)" stroke-dasharray="3 3"/>
+<path id="nerve" d="M60,158 C180,156 280,162 380,161 C480,160 600,163 690,162 C725,163 740,185 748,205" fill="none" stroke="#e0a030" stroke-width="4" stroke-linecap="round"/>
+<circle id="pulse" r="8" fill="#fff" stroke="#e0a030" stroke-width="3" cx="-20" cy="-20"/>
+<text x="45" y="88">Axilla</text><text x="352" y="116">Elbow crease</text><text x="660" y="124">Wrist</text><text x="770" y="262">Hand (APB, thenar)</text><text x="520" y="215" fill="var(--mut)">Median nerve →</text>
+<g id="tgs"></g><g id="sites"></g>
+<g id="probe" style="transform:translate(690px,162px);transition:transform .5s"><rect x="-5" y="-66" width="10" height="52" rx="4" fill="#35525a"/><rect x="-11" y="-76" width="22" height="14" rx="4" fill="#0f6b73"/><circle cx="-4" cy="-10" r="3" fill="#ddd"/><circle cx="4" cy="-10" r="3" fill="#ddd"/><circle id="ring" r="8"/></g>
+<rect x="20" y="246" width="250" height="52" rx="8" fill="none" stroke="var(--mut)" stroke-dasharray="4 3"/><text x="28" y="240">Electrode tray – drag to targets</text>
+<g id="els"></g></svg>
+<div id="elmsg" class="msg">Place all three electrodes.</div>
+<div class="row"><button id="bAuto">Auto-place electrodes (demo)</button><button id="bTape">Measure distances (tape)</button>
+<label>Nerve</label><select id="nerveSel"><option value="median">Median (Motor)</option><option value="ulnar">Ulnar (Motor)</option><option value="peroneal">Peroneal (Motor)</option></select></div>
+
+<h2 style="margin-top:12px">Stimulator</h2>
+<div class="row"><label>Site</label><span id="siteBtns" class="row" style="margin:0"></span></div>
+<div class="row"><label for="inten">Intensity</label><input id="inten" type="range" min="0" max="60" step="1" value="0"><b id="intV" style="font-family:'IBM Plex Mono',monospace;min-width:62px">0 mA</b></div>
+<div class="row"><label for="temp">Limb temperature</label><input id="temp" type="range" min="28" max="36" step="0.5" value="34"><b id="tempV" style="font-family:'IBM Plex Mono',monospace;min-width:62px">34 °C</b></div>
+<div class="row"><button id="bStim" class="pri">⚡ Stimulate</button><span class="sm">Increase current until the response stops growing (supramaximal).</span></div>
+</section>
+
+<section class="card"><h2>Oscilloscope – CMAP (negative deflection up)</h2>
+<div class="row"><label for="tdiv">Time/div</label><select id="tdiv"><option>1</option><option selected>2</option><option>5</option><option>10</option></select><span class="sm">ms</span>
+<label for="sens">Sensitivity</label><select id="sens"><option>0.5</option><option>1</option><option selected>2</option><option>5</option><option>10</option></select><span class="sm">mV/div</span></div>
+<div id="scopeBox"><canvas id="cv" width="800" height="400" aria-label="Simulated CMAP waveform display"></canvas></div>
+<p class="sm" style="margin:6px 0">Click or drag on the trace to place the latency cursor at the CMAP onset (first departure from baseline). Traces: <b style="color:#2fbf86">S1 wrist</b>, <b style="color:#d9a21c">S2 elbow</b>, <b style="color:#3b9ee0">S3 axilla</b>.</p>
+<div class="rd"><div>Selected trace<b id="rSite">—</b></div><div>Response<b id="rFrac">—</b></div><div>Amplitude<b id="rAmp">—</b></div><div>Cursor latency<b id="rLat">—</b></div></div>
+<div id="rMsg" class="msg">Instrument in standby. Press Start.</div>
+<div class="row"><button id="bAutoMark">Auto-mark onset</button><button id="bRec" class="pri">Record to table</button><button id="bClr">Clear scope</button></div>
+</section>
+
+<section class="card full">
+<div class="tabs" role="tablist"><button class="on" data-t="p">Procedure</button><button data-t="o">Observation table</button><button data-t="q">Quiz</button><button data-t="th">Theory &amp; precautions</button></div>
+<div id="p" class="pane on"><div class="bar"><i id="pbar" style="width:0"></i></div><ol class="steps" id="steps"></ol></div>
+<div id="o" class="pane"><div class="row"><label>Side</label><select id="side"><option>Right</option><option>Left</option></select><span class="sm">Nerve: Median (Motor) · Muscle: Abductor Pollicis Brevis · values are editable</span></div>
+<div class="tw2"><table><thead><tr><th>Stimulation site</th><th>Latency (ms)</th><th>Amplitude (mV)</th><th>Distance (mm)</th><th>Segment</th><th>CV (m/s)</th></tr></thead><tbody id="tb"></tbody></table></div>
+<p id="calc" class="msg"></p><p id="res" class="msg"></p><div class="row"><button id="bKey">Show / hide simulated subject answer key</button></div><p id="key" class="sm"></p></div>
+<div id="q" class="pane"><div id="quiz"></div></div>
+<div id="th" class="pane"><p><b>Principle.</b> A supramaximal stimulus at two points along the nerve produces a CMAP at the muscle. The latency is the time from stimulus artifact to CMAP onset. Distal latency includes neuromuscular junction and terminal delay; subtracting it from the proximal latency isolates conduction over the segment between the sites.</p>
+<p><code>CV (m/s) = Distance (mm) ÷ [Proximal latency (ms) − Distal latency (ms)]</code> · Normal median motor NCV ≈ 50–70 m/s.</p>
+<p><b>Electrodes.</b> Ra on the APB belly, Rr on the APB tendon (distal), GND on the dorsum of the hand. <b>Sites.</b> S1 wrist (between palmaris longus and FCR tendons, ~1 cm proximal to the crease), S2 elbow crease (medial to biceps tendon and brachial artery), S3 axilla.</p>
+<ul><li>Use supramaximal stimulation at every site.</li><li>Keep the limb warm – a cold limb falsely slows conduction (try the temperature slider).</li><li>Fix electrodes firmly; swapped or misplaced electrodes change the waveform here.</li><li>Keep the limb still to avoid artifacts.</li><li>Measure distance along the surface path of the nerve.</li></ul>
+<p class="sm">All waveforms and values in this lab are generated by a simplified mathematical model with randomised subject parameters. They are for teaching only.</p></div>
+</section></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $=s=>document.querySelector(s),NS='http://www.w3.org/2000/svg';
+const SITES={S1:{x:690,y:162,n:'Wrist',i:0,I50:12,col:'#2fbf86'},S2:{x:380,y:161,n:'Elbow',i:1,I50:16,col:'#d9a21c'},S3:{x:85,y:158,n:'Axilla',i:2,I50:22,col:'#3b9ee0'}};
+const TG={belly:{x:745,y:208,n:'APB belly',e:'Ra'},tend:{x:797,y:226,n:'Tendon',e:'Rr'},dors:{x:822,y:158,n:'Dorsum',e:'GND'}};
+const EL={Ra:{c:'#d94b3a',h:[50,272]},Rr:{c:'#2f6fd0',h:[115,272]},GND:{c:'#2e9a5a',h:[185,272]}};
+let S,st,T,sweepsClean;
+function newSubject(){S={DL:3.3+Math.random()*.6,CV:54+Math.random()*8,dWE:Math.round(230+Math.random()*40),dEA:Math.round(200+Math.random()*40),A0:7.5+Math.random()*2.5}}
+function initState(){st={running:false,paused:false,site:'S1',I:0,temp:34,placed:{Ra:null,Rr:null,GND:null},sw:{},cur:null,sel:null,man:{},trials:{S1:0,S2:0,S3:0},nerve:'median',pulse:null,live:0};
+T={S1:{lat:'',amp:'',dist:''},S2:{lat:'',amp:'',dist:''},S3:{lat:'',amp:'',dist:''}}}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2600)}
+
+/* ---------- SVG build ---------- */
+const arm=$('#arm');
+for(const k in TG){const g=TG[k],c=document.createElementNS(NS,'circle');c.setAttribute('cx',g.x);c.setAttribute('cy',g.y);c.setAttribute('r',17);c.setAttribute('class','tg');c.id='tg-'+k;$('#tgs').append(c);
+ const t=document.createElementNS(NS,'text');t.setAttribute('x',g.x-(k==='dors'?12:-2));t.setAttribute('y',g.y-(k==='belly'?26:21));t.textContent=g.e+' · '+(k==='dors'?'Dorsum (back of hand)':g.n);if(k==='dors')t.setAttribute('x',700);if(k==='dors')t.setAttribute('y',g.y-24);$('#tgs').append(t)}
+for(const k in SITES){const s=SITES[k],g=document.createElementNS(NS,'g');g.setAttribute('class','site');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Stimulation site '+k+' '+s.n);g.id='st-'+k;
+ g.innerHTML=`<circle cx="${s.x}" cy="${s.y}" r="13"/><text x="${s.x}" y="${s.y+4}" text-anchor="middle" style="font-weight:600;fill:var(--ink)">${k}</text>`;
+ g.onclick=()=>pickSite(k);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')pickSite(k)};$('#sites').append(g);
+ const b=document.createElement('button');b.textContent=k+' – '+s.n;b.id='sb-'+k;b.onclick=()=>pickSite(k);$('#siteBtns').append(b)}
+for(const k in EL){const g=document.createElementNS(NS,'g');g.setAttribute('class','drag');g.setAttribute('tabindex','0');g.id='el-'+k;
+ g.innerHTML=`<circle r="14" fill="${EL[k].c}" stroke="#fff" stroke-width="2.5"/><text text-anchor="middle" y="4" style="fill:#fff;font-weight:600;font-size:11px">${k}</text>`;$('#els').append(g);drag(g,k)}
+function setEl(k,x,y){$('#el-'+k).setAttribute('transform',`translate(${x},${y})`)}
+function drag(g,k){let on=false;
+ const pt=e=>{const p=arm.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(arm.getScreenCTM().inverse())};
+ g.addEventListener('pointerdown',e=>{on=true;g.setPointerCapture(e.pointerId);st.placed[k]=null;e.preventDefault()});
+ g.addEventListener('pointermove',e=>{if(on){const p=pt(e);setEl(k,p.x,p.y)}});
+ g.addEventListener('pointerup',e=>{if(!on)return;on=false;const p=pt(e);let best=null,bd=30;
+  for(const t in TG){const d=Math.hypot(p.x-TG[t].x,p.y-TG[t].y);if(d<bd){bd=d;best=t}}
+  if(best&&Object.values(st.placed).includes(best))best=null;
+  if(best){st.placed[k]=best;setEl(k,TG[best].x,TG[best].y)}else setEl(k,...EL[k].h);refresh()})}
+function homeAll(){for(const k in EL)setEl(k,...EL[k].h)}
+function elec(){const p=st.placed;if(!p.Ra||!p.Rr||!p.GND)return{ok:false,msg:'Place all three electrodes (Ra, Rr, GND) – no signal can be recorded yet.'};
+ let f=1,inv=false,nz=1,msg='Electrodes placed correctly.';
+ if(p.Ra==='tend'&&p.Rr==='belly'){inv=true;msg='Ra and Rr are swapped – the CMAP starts with a positive (downward) deflection.'}
+ else if(p.Ra!=='belly'){f=.25;msg='Active electrode is not over the APB belly – CMAP is much smaller.'}
+ else if(p.Rr!=='tend'){f=.7;msg='Reference is not over the APB tendon – amplitude reduced.'}
+ if(p.GND!=='dors'){nz=5;msg+=' Ground is misplaced – high 50 Hz noise.'}
+ return{ok:true,f,inv,nz,msg,correct:p.Ra==='belly'&&p.Rr==='tend'&&p.GND==='dors'}}
+
+/* ---------- nerve / stimulator ---------- */
+const np=$('#nerve'),NL=np.getTotalLength();
+function lenAt(s){let b=0,bd=1e9;for(let l=0;l<=NL;l+=3){const p=np.getPointAtLength(l),d=(p.x-s.x)**2+(p.y-s.y)**2;if(d<bd){bd=d;b=l}}return b}
+function pickSite(k){st.site=k;const s=SITES[k];$('#probe').style.transform=`translate(${s.x}px,${s.y}px)`;
+ for(const j in SITES){$('#st-'+j).classList.toggle('on',j===k);$('#sb-'+j).classList.toggle('pri',j===k)}if(st.sw[k])st.sel=k;refresh()}
+function cmap(w,t){const x=t-w.L;if(x<=0)return 0;let y=(x/w.a)*Math.exp(1-x/w.a);const x2=x-.6;if(x2>0)y-=.35*((x2/w.b)*Math.exp(1-x2/w.b));return y*w.sc}
+function genNoise(nz){const n=new Float32Array(6000);let p=0,ph=Math.random()*6.28;for(let i=0;i<6000;i++){p=.6*p+.4*(Math.random()-.5);n[i]=p*.07*nz+(nz>1?.1*Math.sin(2*Math.PI*i/1000+ph):0)}return n}
+function stimulate(){
+ if(!st.running||st.paused){toast(st.running?'Simulation is paused – press Resume.':'Press Start to power the acquisition box.');return}
+ if(st.nerve!=='median'){$('#rMsg').className='msg bad';$('#rMsg').textContent='Protocol not loaded: select Median (Motor) in the Nerve Guide list.';toast('Select Median (Motor).');return}
+ const k=st.site,s=SITES[k],e=elec(),I=st.I;
+ const frac=I<=0?0:1/(1+Math.exp(-(I-s.I50)/(s.I50*.18)));
+ const CV=S.CV*(1+.02*(st.temp-34)),DL=S.DL*(1-.045*(st.temp-34)),dist=[0,S.dWE,S.dWE+S.dEA][s.i];
+ const L=DL+dist/CV+.35*(1-frac)+(Math.random()-.5)*.06;
+ let A=e.ok?S.A0*[1,.96,.9][s.i]*frac*e.f*(1+(Math.random()-.5)*.05):0;
+ const w={k,I,L,A,frac,a:1.5+.25*s.i,b:4+.5*s.i,sc:1,inv:e.inv,nz:e.ok?e.nz:1,noise:genNoise(e.ok?e.nz:1),art:Math.min(4,I*.08),prog:0,ok:e.ok&&frac>=.97};
+ let pk=0;for(let t=L;t<L+15;t+=.02)pk=Math.max(pk,cmap(w,t));w.sc=pk?A/pk*(e.inv?-1:1):0;w.id=k;
+ st.sw[k]=w;st.sel=k;st.cur=null;if(w.ok)st.trials[k]++;
+ const r=$('#ring');r.classList.remove('fl');void r.getBoundingClientRect();r.classList.add('fl');
+ st.pulse={l0:lenAt(s),t:0,dur:300+(NL-lenAt(s))/NL*1300,amp:A};
+ $('#bStim').animate([{transform:'scale(.94)'},{transform:'scale(1)'}],{duration:180});
+ refresh()}
+function measAmp(w){let m=-9;for(let t=w.L;t<w.L+15;t+=.05)m=Math.max(m,(w.inv?-1:1)*(cmap(w,t)+w.noise[Math.floor(t*50)]));return Math.abs(m)}
+function sig(w,t){let v=cmap(w,t)+w.noise[Math.min(5999,Math.floor(t*50))];if(t<1.2)v+=w.art*(t<.15?1:-.6)*Math.exp(-t/.3);return v}
+
+/* ---------- scope ---------- */
+const cv=$('#cv'),g=cv.getContext('2d');
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v)}
+function draw(){const W=cv.width,H=cv.height,td=+$('#tdiv').value,sv=+$('#sens').value,pxMs=W/(10*td),pxMv=(H/8)/sv,y0=H*5/8;
+ g.fillStyle='#0a1c21';g.fillRect(0,0,W,H);g.strokeStyle='rgba(120,190,190,.16)';g.lineWidth=1;
+ for(let i=0;i<=10;i++){g.beginPath();g.moveTo(i*W/10,0);g.lineTo(i*W/10,H);g.stroke()}
+ for(let j=0;j<=8;j++){g.beginPath();g.moveTo(0,j*H/8);g.lineTo(W,j*H/8);g.stroke()}
+ g.strokeStyle='rgba(120,190,190,.4)';g.beginPath();g.moveTo(0,y0);g.lineTo(W,y0);g.stroke();
+ g.fillStyle='rgba(160,210,210,.7)';g.font='12px IBM Plex Mono,monospace';
+ for(let i=0;i<10;i++)g.fillText((i*td)+' ms',i*W/10+3,H-5);
+ g.fillText('baseline',4,y0-4);g.fillText('SIMULATED DATA',W-130,16);g.textAlign='left';
+ if(!st.running){g.font='600 26px IBM Plex Sans,sans-serif';g.fillStyle='rgba(160,210,210,.5)';g.fillText('STANDBY',W/2-60,H/2)}
+ else{const ks=Object.keys(st.sw);
+  if(!ks.length){const e=elec(),nz=e.ok?e.nz:1;g.strokeStyle='rgba(160,230,220,.6)';g.beginPath();
+   for(let x=0;x<W;x++){const i=(Math.floor(x*2)+st.live)%6000,ph=2*Math.PI*i/1000;const v=(((i*9301+49297)%233280)/233280-.5)*.07*nz*2+(nz>1?.1*Math.sin(ph):0);const y=y0-v*pxMv;x?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
+  for(const k of ks){const w=st.sw[k];g.strokeStyle=SITES[k].col;g.lineWidth=k===st.sel?2.4:1.4;g.globalAlpha=k===st.sel?1:.7;g.beginPath();
+   const mx=Math.floor(W*w.prog);for(let x=0;x<=mx;x++){const y=Math.max(0,Math.min(H,y0-sig(w,x/pxMs)*pxMv));x?g.lineTo(x,y):g.moveTo(x,y)}g.stroke();g.globalAlpha=1;g.lineWidth=1}}
+ if(st.cur!=null){const x=st.cur*pxMs;g.strokeStyle='#fff';g.setLineDash([5,4]);g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();g.setLineDash([]);g.fillStyle='#fff';g.fillText(st.cur.toFixed(2)+' ms',Math.min(x+5,W-70),30)}}
+function cursorAt(e){if(!st.sel)return;const r=cv.getBoundingClientRect(),td=+$('#tdiv').value;let t=(e.clientX-r.left)/r.width*10*td;st.cur=Math.max(0,t);refresh()}
+let cd=false;cv.addEventListener('pointerdown',e=>{cd=true;cv.setPointerCapture(e.pointerId);cursorAt(e)});cv.addEventListener('pointermove',e=>{if(cd)cursorAt(e)});cv.addEventListener('pointerup',()=>cd=false);
+
+/* ---------- loop ---------- */
+let last=performance.now();const pulse=$('#pulse');
+function loop(now){const dt=Math.min(60,now-last);last=now;
+ if(st.running&&!st.paused){st.live+=7;for(const k in st.sw){const w=st.sw[k];if(w.prog<1)w.prog=Math.min(1,w.prog+dt/1400)}
+  const p=st.pulse;if(p){p.t+=dt;const f=Math.min(1,p.t/p.dur),pt=np.getPointAtLength(p.l0+(NL-p.l0)*f);pulse.setAttribute('cx',pt.x);pulse.setAttribute('cy',pt.y);
+   if(f>=1){pulse.setAttribute('cx',-20);st.pulse=null;if(p.amp>0.05){const th=$('#thenar');th.style.setProperty('--s',1+Math.min(.4,p.amp/25));th.classList.remove('tw');void th.getBoundingClientRect();th.classList.add('tw')}}}}
+ draw();requestAnimationFrame(loop)}
+
+/* ---------- table & calc ---------- */
+const rows=[['S1','S1 – Wrist','—'],['S2','S2 – Elbow','Wrist–Elbow'],['S3','S3 – Axilla (optional)','Elbow–Axilla']];
+$('#tb').innerHTML=rows.map(r=>`<tr><td>${r[1]}</td><td><input data-s="${r[0]}" data-f="lat" inputmode="decimal" aria-label="${r[1]} latency"></td><td><input data-s="${r[0]}" data-f="amp" inputmode="decimal" aria-label="${r[1]} amplitude"></td><td>${r[0]==='S1'?'—':`<input data-s="${r[0]}" data-f="dist" inputmode="decimal" aria-label="${r[1]} distance">`}</td><td>${r[2]}</td><td id="cv-${r[0]}">—</td></tr>`).join('');
+document.querySelectorAll('td input').forEach(i=>i.oninput=()=>{T[i.dataset.s][i.dataset.f]=i.value;refresh()});
+function syncInputs(){document.querySelectorAll('td input').forEach(i=>{if(document.activeElement!==i)i.value=T[i.dataset.s][i.dataset.f]})}
+function cvOf(s){const a=s==='S2'?'S1':'S2',d=parseFloat(T[s].dist),l=parseFloat(T[s].lat)-parseFloat(T[a].lat);return(d>0&&l>0)?{cv:d/l,d,l,a}:null}
+function sup(k){return st.sw[k]&&st.sw[k].ok}
+
+/* ---------- steps ---------- */
+const steps=[
+['Position the subject','Seat or recline the subject with the arm relaxed, slightly abducted and supinated.',()=>st.man[0],1],
+['Prepare the skin','Clean the recording and stimulating sites with an alcohol swab and apply conducting gel.',()=>st.man[1],1],
+['Place the recording electrodes','Drag Ra to the APB belly, Rr to the APB tendon and GND to the dorsum of the hand.',()=>elec().correct],
+['Power on and select Median (Motor)','Press Start, then make sure “Median (Motor)” is selected in the Nerve list.',()=>st.running&&st.nerve==='median'],
+['Stimulate S1 (wrist) supramaximally','Pick S1, raise the intensity until the response reads “Supramaximal”, then press Stimulate.',()=>sup('S1')],
+['Mark the distal latency (Lat 1)','Place the cursor at the CMAP onset (or Auto-mark) and press Record to table.',()=>T.S1.lat!==''],
+['Stimulate S2 (elbow)','Move the probe to S2 and stimulate with supramaximal current.',()=>sup('S2')],
+['Mark the proximal latency (Lat 2)','Mark the CMAP onset for S2 and record it.',()=>T.S2.lat!==''],
+['Optional: stimulate S3 (axilla)','Stimulate and record S3 for the elbow–axilla segment, or skip.',()=>st.man[8]||T.S3.lat!=='',1],
+['Measure the distance','Press “Measure distances (tape)” to enter the surface distances in the table.',()=>T.S2.dist!==''],
+['Calculate the conduction velocity','The table applies CV = Distance ÷ (Proximal − Distal latency).',()=>!!cvOf('S2')],
+['Repeat trials','Do at least 2 supramaximal stimulations at both S1 and S2 to confirm reproducibility.',()=>st.trials.S1>=2&&st.trials.S2>=2],
+['Document and switch off','Review the table and result, then switch off the equipment and remove the electrodes.',()=>st.man[12],1]];
+function renderSteps(){let cur=-1;const done=steps.map((s,i)=>s[2]());cur=done.indexOf(false);
+ $('#steps').innerHTML=steps.map((s,i)=>`<li class="${done[i]?'done':i===cur?'cur':''}"><span class="ck">${done[i]?'✓':''}</span><div><b>${i+1}. ${s[0]}</b><div class="sm">${s[1]}</div>${s[3]&&!done[i]&&i===cur?`<button data-m="${i}" style="margin-top:6px">${i===8?'Skip / mark done':'Mark done'}</button>`:''}</div></li>`).join('');
+ document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{st.man[b.dataset.m]=true;if(+b.dataset.m===12){st.paused=true;toast('Equipment switched off (simulation paused).')}refresh()});
+ $('#pbar').style.width=(done.filter(Boolean).length/steps.length*100)+'%'}
+
+/* ---------- refresh ---------- */
+function refresh(){const w=st.sel&&st.sw[st.sel],e=elec();
+ $('#elmsg').textContent=e.msg;$('#elmsg').className='msg '+(e.correct?'ok':'');
+ for(const k in TG)$('#tg-'+k).classList.toggle('ok',Object.values(st.placed).includes(k)&&TG[k].e===Object.keys(st.placed).find(x=>st.placed[x]===k));
+ $('#intV').textContent=st.I+' mA';$('#tempV').textContent=st.temp+' °C';
+ $('#bStart').disabled=st.running;$('#bPause').disabled=!st.running;$('#bPause').textContent=st.paused?'Resume':'Pause';
+ $('#rSite').textContent=w?w.k+' – '+SITES[w.k].n:'—';
+ $('#rFrac').textContent=w?Math.round(w.frac*100)+'%':'—';
+ $('#rAmp').textContent=w?(w.A>0?measAmp(w).toFixed(2)+' mV':'0 mV'):'—';
+ $('#rLat').textContent=st.cur!=null?st.cur.toFixed(2)+' ms':'—';
+ let m='',c='msg';
+ if(!st.running){m='Instrument in standby. Press Start.'}
+ else if(!w){m='Ready. Select a site, set the intensity and press Stimulate.'}
+ else if(!e.ok&&w.A===0){m='No CMAP recorded – only the stimulus artifact. Check the electrodes.';c+=' bad'}
+ else{m=w.frac>=.97?'Supramaximal response – the amplitude has plateaued.':'Submaximal response ('+Math.round(w.frac*100)+'%). Increase the intensity.';c+=w.frac>=.97?' ok':' bad';
+  if(w.I>50)m+=' Subject reports discomfort (simulated).';
+  if(st.cur!=null){const err=Math.abs(st.cur-w.L);m+=err<=.25?' Cursor is on the onset (±0.25 ms) ✓.':' Cursor is '+(st.cur>w.L?'after':'before')+' the true onset – re-adjust.'}}
+ $('#rMsg').textContent=m;$('#rMsg').className=c;
+ for(const s of['S2','S3']){const r=cvOf(s);$('#cv-'+s).textContent=r?r.cv.toFixed(1):'—'}
+ const r=cvOf('S2');$('#calc').textContent=r?`CV = ${r.d} mm ÷ [${T.S2.lat} − ${T.S1.lat}] ms = ${r.cv.toFixed(1)} m/s`:'CV = Distance (mm) ÷ [Latency at Elbow (ms) − Latency at Wrist (ms)] = _______ m/s';
+ $('#res').textContent=r?`The Motor Nerve Conduction Velocity of the median nerve over the wrist–elbow segment was found to be ${r.cv.toFixed(1)} m/s, which lies ${r.cv>=50&&r.cv<=70?'within':'outside'} the normal reference range (≈ 50–70 m/s).`:'Result: the MNCV (wrist–elbow) will appear here once latencies and distance are entered.';
+ syncInputs();renderSteps()}
+function showKey(){const k=$('#key');if(k.textContent){k.textContent='';return}const cvt=S.CV*(1+.02*(st.temp-34));k.textContent=`Simulated subject (hidden truth): distal latency ≈ ${(S.DL*(1-.045*(st.temp-34))).toFixed(2)} ms, true wrist–elbow CV ≈ ${cvt.toFixed(1)} m/s at ${st.temp} °C, wrist–elbow ${S.dWE} mm, elbow–axilla ${S.dEA} mm, maximal CMAP ≈ ${S.A0.toFixed(1)} mV.`}
+
+/* ---------- controls ---------- */
+$('#bStart').onclick=()=>{st.running=true;st.paused=false;toast('Acquisition box on. Nerve Guide ready.');refresh()};
+$('#bPause').onclick=()=>{st.paused=!st.paused;refresh()};
+function resetAll(){newSubject();initState();homeAll();$('#inten').value=0;$('#temp').value=34;$('#nerveSel').value='median';pickSite('S1');$('#key').textContent='';refresh()}
+$('#bReset').onclick=()=>{resetAll();toast('Lab reset with a new simulated subject.')};
+$('#bStim').onclick=stimulate;
+$('#inten').oninput=e=>{st.I=+e.target.value;refresh()};
+$('#temp').oninput=e=>{st.temp=+e.target.value;refresh()};
+$('#nerveSel').onchange=e=>{st.nerve=e.target.value;refresh()};
+$('#tdiv').onchange=$('#sens').onchange=draw;
+$('#bAuto').onclick=()=>{for(const k in TG){st.placed[TG[k].e]=k;setEl(TG[k].e,TG[k].x,TG[k].y)}refresh()};
+$('#bTape').onclick=()=>{T.S2.dist=String(S.dWE+Math.round((Math.random()-.5)*3));T.S3.dist=String(S.dEA+Math.round((Math.random()-.5)*3));toast('Surface distances measured (simulated).');refresh()};
+$('#bClr').onclick=()=>{st.sw={};st.sel=null;st.cur=null;st.pulse=null;refresh()};
+$('#bAutoMark').onclick=()=>{const w=st.sw[st.sel];if(!w||w.A<=0)return toast('Stimulate first to get a CMAP.');st.cur=w.L+(Math.random()-.5)*.1;refresh()};
+$('#bRec').onclick=()=>{const w=st.sw[st.sel];if(!w||w.A<=0)return toast('No CMAP to record.');if(st.cur==null)return toast('Place the latency cursor on the onset first.');
+ T[w.k].lat=st.cur.toFixed(2);T[w.k].amp=measAmp(w).toFixed(2);toast('Recorded '+w.k+' to the observation table.');refresh()};
+$('#bKey').onclick=showKey;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.pane').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.t).classList.add('on')});
+
+/* ---------- quiz ---------- */
+const QZ=[
+{q:'What does the latency in a motor nerve conduction study represent?',o:['Time from the stimulus artifact to the onset of the CMAP','Time from CMAP onset to its peak','Duration of the whole CMAP','Time between two consecutive stimuli'],a:0,e:'Latency is measured from the stimulus artifact to the CMAP onset, in milliseconds.'},
+{q:'Why must supramaximal stimulation be used at every site?',o:['To make the subject twitch more','To activate all motor axons so latency and amplitude are not underestimated','To reduce the stimulus artifact','To cool the limb'],a:1,e:'A submaximal stimulus recruits only some fibres, giving a smaller CMAP and an unreliable onset.'},
+{q:'Wrist latency is 3.5 ms, elbow latency is 7.7 ms and the distance is 240 mm. What is the CV?',o:['34 m/s','57 m/s','69 m/s','114 m/s'],a:1,e:'CV = 240 mm ÷ (7.7 − 3.5) ms = 240 ÷ 4.2 ≈ 57 m/s.'},
+{q:'Why is the distal latency alone not used to calculate velocity?',o:['It is always zero','It includes neuromuscular junction and terminal nerve delay','It is measured in seconds','It is affected only by the ground electrode'],a:1,e:'Subtracting the distal latency removes the fixed junction and terminal delay, leaving the conduction time of the segment.'},
+{q:'What is the effect of a cold limb on conduction velocity?',o:['It falsely speeds it up','No effect','It falsely slows it down','It reverses the CMAP'],a:2,e:'Cooling slows conduction, so limbs must be kept warm. Try the temperature slider.'},
+{q:'Where is the active (Ra) electrode placed for median motor NCS?',o:['Dorsum of the hand','Over the APB tendon','Over the belly of the Abductor Pollicis Brevis','At the elbow crease'],a:2,e:'Ra sits on the APB belly (motor point); Rr is distal on the tendon; GND is on the dorsum of the hand.'},
+{q:'What is the normal median motor NCV in this manual?',o:['5–10 m/s','20–30 m/s','50–70 m/s','120–150 m/s'],a:2,e:'Normal median motor NCV is approximately 50–70 m/s, varying with age and temperature.'},
+{q:'How should the distance between stimulation sites be measured?',o:['In a straight line through the tissue','Along the surface path of the nerve','Between the electrodes only','It is not needed'],a:1,e:'Distance follows the surface path of the nerve; errors here translate directly into CV errors.'}];
+let qi=0,qs=0,qa=false;
+function renderQ(){const el=$('#quiz');if(qi>=QZ.length){el.innerHTML=`<h2>Score: ${qs} / ${QZ.length}</h2><p>${qs>=6?'Excellent understanding of the experiment.':'Review the Theory tab and try again.'}</p><button id="qr" class="pri">Retry quiz</button>`;$('#qr').onclick=()=>{qi=0;qs=0;renderQ()};return}
+ const q=QZ[qi];qa=false;el.innerHTML=`<p class="sm">Question ${qi+1} of ${QZ.length}</p><p><b>${q.q}</b></p>${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}<div id="qf"></div>`;
+ el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(qa)return;qa=true;const i=+b.dataset.i;if(i===q.a)qs++;
+  el.querySelectorAll('.opt').forEach((x,j)=>{if(j===q.a)x.classList.add('c');else if(j===i)x.classList.add('w')});
+  $('#qf').innerHTML=`<p class="msg ${i===q.a?'ok':'bad'}"><b>${i===q.a?'Correct.':'Not quite.'}</b> ${q.e}</p><button id="qn" class="pri">${qi+1<QZ.length?'Next question':'See score'}</button>`;$('#qn').onclick=()=>{qi++;renderQ()}})}
+
+newSubject();initState();homeAll();pickSite('S1');renderQ();refresh();requestAnimationFrame(loop);
+</script></body></html>

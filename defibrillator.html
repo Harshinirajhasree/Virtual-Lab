@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Lab – Study of Defibrillator</title>
+<style>
+:root{--bg:#eef2f6;--tx:#14212e;--card:#fff;--bd:#cdd6e0;--mut:#5a6b7c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0c131b;--tx:#e3ecf5;--card:#142130;--bd:#27394d;--mut:#8fa3b8}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+header{background:#0d2a42;color:#fff;padding:12px 18px}header h1{margin:0;font-size:19px}header p{margin:2px 0 0;font-size:12px;opacity:.8}
+.warn{background:#7a1f1f;color:#fff;padding:7px 18px;font-size:12.5px}
+.wrap{max-width:1300px;margin:auto;padding:14px;display:grid;gap:14px;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+@media(max-width:950px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px}
+.card h2{margin:0 0 8px;font-size:15px}
+.eq{background:linear-gradient(#2b3440,#1b222b);color:#dfe8f1;border-radius:12px;padding:12px;border:2px solid #0b0f14}
+.eq h3{margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8fb4d6;display:flex;justify-content:space-between}
+.scr{background:#021016;border:2px inset #3a4654;border-radius:6px;padding:8px;font-family:Consolas,monospace;color:#4dff9a;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.scr b{display:block;font-size:22px}.scr small{color:#6fa88a;font-size:10px}
+.status{grid-column:1/-1;color:#ffd166;font-size:12px;min-height:16px;text-align:left}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid #44566a;background:#2d3a49;color:#e6eef6;padding:6px 10px}
+button:hover{filter:brightness(1.2)}button.on{background:#1f7a4d;border-color:#43d08a;color:#fff}
+button.warnb.on{background:#b3541e}button.pwr.on{background:#c0392b}
+.charge{background:#b8860b}.shock{background:#c0392b;font-weight:700;padding:10px 18px;font-size:15px}.disarm{background:#4a5560}
+.lbl{font-size:11px;color:#9db3c8}input[type=range]{accent-color:#3fb6ff;vertical-align:middle}
+.bar{height:12px;background:#05090d;border-radius:6px;overflow:hidden;border:1px solid #3a4654}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f1c40f,#e67e22,#e74c3c)}
+.led{display:inline-block;width:10px;height:10px;border-radius:50%;background:#333;margin-right:4px}.led.g{background:#2ecc71;box-shadow:0 0 6px #2ecc71}.led.r{background:#ff4d4d;box-shadow:0 0 6px #f33}.led.y{background:#ffd166;box-shadow:0 0 6px #ffd166}
+canvas{width:100%;display:block;background:#04090d;border-radius:6px;border:2px inset #3a4654}
+.ctrl{position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ctrl button{background:#0d5ea6;border-color:#0d5ea6;color:#fff;padding:7px 16px}.ctrl .rs{background:#6b7785;border-color:#6b7785}
+ol.steps{margin:0;padding:0;list-style:none}ol.steps li{display:flex;gap:8px;padding:6px;border-radius:6px;border:1px solid transparent;align-items:flex-start}
+ol.steps li.cur{background:rgba(63,182,255,.12);border-color:#3fb6ff}ol.steps li.done{opacity:.6}
+.chk{min-width:22px;height:22px;border-radius:50%;border:2px solid var(--mut);text-align:center;font-size:12px;line-height:18px}.done .chk{background:#1f9d5c;border-color:#1f9d5c;color:#fff}
+.sm{padding:2px 8px;font-size:12px;background:#0d5ea6;color:#fff;border-radius:5px;border:0}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th,td{border:1px solid var(--bd);padding:5px;text-align:center}th{background:rgba(63,130,200,.15)}
+.ok{color:#1f9d5c;font-weight:600}.bad{color:#d0453a;font-weight:600}
+#log{height:120px;overflow:auto;font:12px Consolas,monospace;background:#05090d;color:#b8d0e6;padding:6px;border-radius:6px}
+.q{border-top:1px solid var(--bd);padding:8px 0}.q label{display:block;padding:2px 0;cursor:pointer}.exp{font-size:13px;margin-top:4px;padding:6px;border-radius:6px;background:rgba(63,130,200,.12)}
+.snaps{display:grid;grid-template-columns:1fr 1fr;gap:8px}.snaps div{font-size:12px;color:var(--mut)}
+.full{grid-column:1/-1}details{margin:4px 0}summary{cursor:pointer;font-weight:600}
+</style></head>
+<body>
+<header><h1>Virtual Biomedical Lab · Ex. 1 — Study the Working of Defibrillator</h1><p>Aim: To study the working of defibrillator · Equipment: Defibrillator, ECG Simulator, DSO, Discharge pads (2)</p></header>
+<div class="warn">⚠ <b>EDUCATIONAL SIMULATION ONLY.</b> All waveforms, energies, thresholds and outcomes are simulated teaching models — not clinical data and not medical advice. Real defibrillators deliver high-voltage shocks that can cause serious injury or death; use only under qualified supervision and per manufacturer instructions. Never touch the patient during discharge (“All clear!”).</div>
+
+<div class="wrap">
+<div style="display:grid;gap:14px;min-width:0">
+ <div class="ctrl"><button id="bStart">▶ Start</button><button id="bPause">⏸ Pause</button><button class="rs" id="bReset">⟲ Reset</button>
+  <span id="runst" style="font-size:12px;color:var(--mut)">Stopped — press Start, then follow the procedure.</span></div>
+
+ <div class="eq"><h3><span>Digital Storage Oscilloscope (DSO)</span><span><span class="led y"></span>CH1 ECG · <span class="led g" style="background:#2ec4ff"></span>CH2 SYNC OUT</span></h3>
+  <canvas id="dso" width="1000" height="360"></canvas>
+  <div class="lbl" style="margin-top:4px">10 s sweep · CH1 ECG (yellow) · CH2 synchronisation pulse (cyan) · red line = shock instant · flat trace = ECG input blanked for protection during shock</div></div>
+
+ <div class="eq"><h3><span>DC Defibrillator</span><span><span class="led" id="ledP"></span>Power</span></h3>
+  <div class="scr"><div><small>ENERGY SET</small><b id="dSet">0 J</b></div><div><small>CHARGED (REL. UNITS)</small><b id="dRel">0.0</b></div><div><small>HEART RATE</small><b id="dHR">--</b></div><div><small>MODE</small><b id="dMode">MANUAL</b></div><div class="status" id="dStat">OFF</div></div>
+  <div class="row"><button class="pwr" id="bDef">⏻ Defibrillator Power</button>
+   <span class="lbl">Mode:</span><button id="mMan">MANUAL</button><button id="mSyn">SYNCH</button>
+   <span class="lbl">Pulse:</span><select id="wave"><option value="mono">Monophasic</option><option value="bi">Biphasic</option></select></div>
+  <div class="row"><span class="lbl">Energy:</span><input type="range" id="en" min="50" max="360" step="10" value="200" style="flex:1;min-width:120px"><b id="enV" style="min-width:52px">200 J</b>
+   <button class="sm" data-e="100">100</button><button class="sm" data-e="200">200</button><button class="sm" data-e="300">300</button><button class="sm" data-e="360">360</button></div>
+  <div class="lbl">Capacitor charge (V = ½CV² energy storage, C = 32 µF)</div><div class="bar"><i id="chBar"></i></div>
+  <div class="row"><button class="charge" id="bCharge">⚡ CHARGE</button><button class="shock" id="bShock">SHOCK</button><button class="disarm" id="bDisarm">Disarm</button>
+   <span><span class="led" id="ledR"></span>Ready <span class="led" id="ledS"></span>Sync marker</span></div>
+  <div class="lbl">Discharge pulse across patient (computed) · <span id="pInfo">—</span></div><canvas id="pulse" width="500" height="90"></canvas></div>
+</div>
+
+<div style="display:grid;gap:14px;align-content:start;min-width:0">
+ <div class="eq"><h3><span>DC Defibrillator Simulator (ECG)</span><span><span class="led" id="ledSim"></span>Power</span></h3>
+  <div class="row"><button class="pwr" id="bSim">⏻ Simulator Power</button></div>
+  <div class="row"><button id="rN">Normal</button><button id="rA">A-fib</button><button id="rV">V-fib</button></div>
+  <div class="row"><span class="lbl">Normal heart rate</span><input type="range" id="hr" min="50" max="120" value="72"><b id="hrV">72 bpm</b></div>
+  <div class="lbl">Back panel – conversion thresholds (simulated model)</div>
+  <div class="row"><span class="lbl">A-fib (sync)</span><input type="range" id="thA" min="50" max="300" step="10" value="150"><b id="thAV">150 J</b></div>
+  <div class="row"><span class="lbl">V-fib (manual)</span><input type="range" id="thV" min="100" max="360" step="10" value="250"><b id="thVV">250 J</b></div>
+  <div class="row"><span class="lbl">Patient impedance (50–100 Ω)</span><input type="range" id="imp" min="50" max="100" value="75"><b id="impV">75 Ω</b></div></div>
+
+ <div class="eq"><h3>Cable Connections</h3>
+  <div class="row"><button id="cEcg">Sim ECG OUT → Defib ECG INPUT</button><button id="cCh1">Defib ECG OUT → DSO CH1</button><button id="cCh2">Sync OUT → DSO CH2</button><button id="cPad">Defib PATIENT (pads) → Simulator top panel</button></div></div>
+
+ <div class="card"><h2>Step-by-step Procedure</h2><ol class="steps" id="steps"></ol><div id="done" class="ok"></div></div>
+</div>
+
+<div class="card"><h2>Before / After Defibrillation (ECG CH1)</h2>
+ <div class="snaps"><div>BEFORE shock<canvas id="sBef" width="500" height="110"></canvas></div><div>AFTER shock (3 s after blanking)<canvas id="sAft" width="500" height="110"></canvas></div></div>
+ <h2 style="margin-top:12px">Event Log</h2><div id="log"></div></div>
+
+<div class="card"><h2>Observation Table (auto-filled on each shock)</h2>
+ <div style="overflow-x:auto"><table><thead><tr><th rowspan="2">S.No</th><th rowspan="2">Heart rate (simulator)</th><th rowspan="2">Nature of rhythm</th><th rowspan="2">Mode of defibrillation</th><th rowspan="2">Energy (J)</th><th colspan="2">Heart rate</th><th rowspan="2">Outcome</th></tr><tr><th>Before</th><th>After</th></tr></thead><tbody id="tb"><tr><td colspan="8" style="color:var(--mut)">No readings yet.</td></tr></tbody></table></div>
+ <div class="row"><button class="sm" id="clrT">Clear table</button></div>
+ <h2>Auto-generated Result</h2><div id="res" style="font-size:13px">Deliver at least one simulated shock to generate a result.</div></div>
+
+<div class="card full"><h2>Theory (from lab manual) & Quiz</h2>
+ <details><summary>Key theory</summary><p>Ventricular fibrillation (asynchronous contraction of ventricular muscle) causes loss of cardiac output; irreversible brain damage or death may follow if not reversed within about 5 minutes. A high-energy DC shock makes all fibres contract together so the intrinsic pacemaker can resume. External defibrillation needs higher energy than internal (open-chest). A variable auto-transformer → high-voltage transformer → diode rectifier → changeover switch charges a capacitor (position 1); on shock the switch moves to position 2 and discharges through an inductor and electrodes. The inductor shapes the pulse but dissipates some energy. Patient resistance ≈ 50–100 Ω (≈80 cm² electrodes). Monophasic width 3–12 ms; biphasic positive 3–10 ms, negative 1–10 ms; biphasic gives higher efficacy. Synch mode delivers the shock on the R-wave (QRS) so it avoids the vulnerable T-wave.</p></details>
+ <div id="quiz"></div><div class="row"><button class="sm" id="qScore" style="padding:6px 14px">Show score</button><b id="qRes"></b></div></div>
+</div>
+
+<script>
+const $=i=>document.getElementById(i),FS=250,N=2500,C=32e-6;
+let S,b1=new Float32Array(N),b2=new Float32Array(N),idx=0,lastR,nextR,rt,pend,shockAt,blank,markT,markI,aftJob,rows,flags,done,beforeSnap,afterSnap,run=false,tPrev=0,acc=0,ac;
+const NAME={normal:'Normal',afib:'A-fib',vfib:'V-fib',none:'—'};
+function init(){S={T:0,on:{def:0,sim:0},rhythm:'none',hr:72,mode:'manual',en:200,charged:0,charging:false,c:{ecg:0,ch1:0,ch2:0,pad:0},status:'OFF'};
+ b1.fill(0);b2.fill(0);idx=0;lastR=-1;nextR=.5;rt=[];pend=0;blank=-1;markT=-99;aftJob=null;rows=[];flags={};done=[];beforeSnap=afterSnap=null;run=false;acc=0;$('log').innerHTML='';
+ $('hr').value=72;$('en').value=200;$('thA').value=150;$('thV').value=250;$('imp').value=75;$('wave').value='mono';
+ drawSnap('sBef',null);drawSnap('sAft',null);drawPulse();renderRows();sync();log('Lab reset. Ready.')}
+function log(m,c){const d=document.createElement('div');d.textContent='['+S.T.toFixed(1)+'s] '+m;if(c)d.style.color=c;$('log').appendChild(d);$('log').scrollTop=1e5}
+const g=(d,m,s,a)=>a*Math.exp(-((d-m)**2)/(2*s*s));
+function rr(){return S.rhythm=='afib'?.32+Math.random()*.55:60/S.hr*(1+(Math.random()-.5)*.02)}
+function ecg(t){const r=S.rhythm;if(r=='none')return 0;
+ if(r=='vfib')return .45*Math.sin(6.28*4.3*t+1.5*Math.sin(.9*t))*(.65+.35*Math.sin(1.3*t))+.3*Math.sin(6.28*6.7*t+2*Math.sin(.5*t))+.1*Math.sin(6.28*2.2*t);
+ if(t>=nextR){lastR=nextR;nextR=lastR+rr();rt.push(lastR);if(rt.length>8)rt.shift()}
+ let v=0;for(const b of[lastR,nextR]){const d=t-b;if(r=='normal')v+=g(d,-.16,.025,.13);v+=g(d,-.035,.01,-.12)+g(d,0,.013,1)+g(d,.035,.012,-.2)+g(d,.26,.05,.28)}
+ if(r=='afib')v+=.07*Math.sin(6.28*6.1*t)+.05*Math.sin(6.28*8.7*t+1)+.04*Math.sin(6.28*4.4*t+2);
+ return v+(Math.random()-.5)*.012}
+function syncS(t){if(S.mode!='sync'||!S.on.def||S.rhythm=='vfib'||S.rhythm=='none')return 0;for(const b of[lastR,nextR])if(t>=b-.025&&t<b+.06)return 1;return 0}
+function hrNow(){if(S.rhythm=='none'||S.rhythm=='vfib')return null;if(rt.length<3)return S.rhythm=='normal'?S.hr:null;return Math.round(60/((rt[rt.length-1]-rt[0])/(rt.length-1)))}
+function stepSim(){const t=S.T;let v=0,s=0;if(t<blank){}else{v=ecg(t);s=syncS(t)}
+ b1[idx]=v;b2[idx]=s;idx=(idx+1)%N;S.T+=1/FS;
+ if(pend&&S.T>=shockAt)exec();if(aftJob&&S.T>=aftJob.t)finishAfter()}
+function grab(sec){const n=sec*FS,a=new Float32Array(n);for(let i=0;i<n;i++)a[i]=b1[(idx-n+i+N*2)%N];return a}
+function beep(f=880,d=.15){try{ac=ac||new AudioContext();const o=ac.createOscillator(),gn=ac.createGain();o.frequency.value=f;gn.gain.value=.05;o.connect(gn);gn.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+const eff=()=>S.en*(1-($('imp').value-50)/250)*($('wave').value=='bi'?1.2:1);
+function pressShock(){if(!S.on.def)return msg('Defibrillator is OFF.');
+ if(S.charged<S.en-.5||S.charging)return msg('Not charged to set energy — press CHARGE and wait for READY.');
+ if(!S.c.pad)return msg('Patient pads not connected to simulator — no discharge. Connect pads or Disarm.');
+ if(!run)return msg('Simulation is stopped — press Start.');
+ if(S.mode=='sync'){if(S.rhythm=='vfib'||S.rhythm=='none'){log('SYNC: no QRS detected — shock inhibited. Use MANUAL for V-fib.','#ff9f43');return msg('NO QRS – SHOCK INHIBITED')}
+  pend=1;shockAt=nextR+.02;msg('SYNC: waiting for next R-wave…');log('Shock armed in SYNCH mode; will discharge on next R-wave.')}
+ else{pend=1;shockAt=S.T;}}
+function msg(m){S.status=m;log(m,'#ffd166')}
+function exec(){pend=0;const E=S.charged,Ee=eff(),r0=S.rhythm,m=S.mode,hb=hrNow();beforeSnap=grab(3);
+ const V=Math.sqrt(2*E/C),I=V/$('imp').value;drawPulse(E,I);
+ let out,ok=null,nr=r0,thA=+$('thA').value,thV=+$('thV').value;
+ if(m=='sync'){if(r0=='normal'){out='Shock not indicated — rhythm unchanged';nr='normal'}
+  else if(Ee>=thA){out='Converted to Normal (sinus) rhythm';nr='normal';ok=1;flags.af=1}
+  else{out='No conversion — raise energy & repeat';ok=0}}
+ else{if(r0=='vfib'){if(Ee>=thV){out='Converted to Normal rhythm';nr='normal';ok=1;flags.vf=1}else{out='No conversion — raise energy & repeat';ok=0}}
+  else{out='UNSYNCHRONISED shock — may induce V-fib (R-on-T risk)';nr='vfib';ok=0}}
+ S.rhythm=nr;blank=S.T+1.5;markT=S.T;markI=idx;nextR=blank+.4;lastR=nextR-.8;rt=[];S.charged=0;S.charging=false;
+ S.status='DISCHARGED: '+Math.round(E)+' J';beep(300,.3);
+ log('SHOCK '+Math.round(E)+' J ('+(m=='sync'?'SYNCH':'MANUAL')+', '+r0+' → '+nr+'). '+out,ok?'#2ecc71':'#ff6b6b');
+ const row={hrSet:S.hr,r:r0,m,E:Math.round(E),hb,ha:null,out,ok};rows.push(row);aftJob={t:blank+3,row};sync();renderRows()}
+function finishAfter(){const{row}=aftJob;aftJob=null;afterSnap=grab(3);row.ha=hrNow();drawSnap('sBef',beforeSnap);drawSnap('sAft',afterSnap);renderRows()}
+function renderRows(){const tb=$('tb');if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="color:var(--mut)">No readings yet.</td></tr>';$('res').textContent='Deliver at least one simulated shock to generate a result.';return}
+ const f=h=>h==null?'—':h+' bpm';tb.innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.hrSet} bpm</td><td>${NAME[r.r]}</td><td>${r.m=='sync'?'Synchronised':'Manual'}</td><td>${r.E}</td><td>${f(r.hb)}</td><td>${r.ha===null&&aftJob&&aftJob.row===r?'measuring…':f(r.ha)}</td><td class="${r.ok?'ok':r.ok===0?'bad':''}">${r.out}</td></tr>`).join('');
+ const s=rows.filter(r=>r.ok).length,l=rows[rows.length-1];
+ $('res').innerHTML=`<p><b>${rows.length}</b> simulated discharge(s); <b>${s}</b> successful conversion(s). Last: <b>${NAME[l.r]}</b>, ${l.m=='sync'?'synchronised':'manual'} mode, <b>${l.E} J</b> → ${l.out}.</p><p>Thus the working of the defibrillator was studied: the synch pulse rising edge coincided with the QRS rising edge, A-fib was corrected with a synchronised shock, and V-fib with a manual-mode shock at sufficient energy. <i>(Educational simulation — not clinical treatment.)</i></p>`}
+function plot(c,arr,col,lo,hi){const x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);grid(x,W,H);if(!arr)return;x.strokeStyle=col;x.lineWidth=1.5;x.beginPath();arr.forEach((v,i)=>{const X=i/arr.length*W,Y=H*.65-v*H*.45;i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke()}
+function grid(x,W,H,dx=10,dy=8){x.fillStyle='#04090d';x.fillRect(0,0,W,H);x.strokeStyle='#12304a';x.lineWidth=1;x.beginPath();for(let i=1;i<dx;i++){x.moveTo(W*i/dx,0);x.lineTo(W*i/dx,H)}for(let j=1;j<dy;j++){x.moveTo(0,H*j/dy);x.lineTo(W,H*j/dy)}x.stroke()}
+function drawSnap(id,a){const c=$(id);plot(c,a,'#ffd84d');if(!a){const x=c.getContext('2d');x.fillStyle='#4a6a85';x.fillText('no data yet',10,20)}}
+function drawPulse(E,I){const c=$('pulse'),x=c.getContext('2d'),W=c.width,H=c.height;grid(x,W,H,10,4);if(!E){$('pInfo').textContent='—';return}
+ const bi=$('wave').value=='bi';$('pInfo').textContent=`${Math.round(E)} J stored, V≈${(Math.sqrt(2*E/C)/1000).toFixed(2)} kV, peak I≈${I.toFixed(0)} A, ${bi?'biphasic ~7+4 ms':'monophasic ~8 ms'}`;
+ x.strokeStyle='#ff8a5c';x.lineWidth=2;x.beginPath();const T=bi?11:9;for(let i=0;i<=W;i++){const t=i/W*14;let y=0;if(bi){if(t<7)y=g(t,2,1.6,1);else y=-.7*g(t,9,1.4,1)}else if(t<T){const q=t/2.4;y=q*Math.exp(1-q)}
+ const Y=H/2-(y*H*.42);i?x.lineTo(i,Y):x.moveTo(i,Y)}x.stroke()}
+function drawDSO(){const c=$('dso'),x=c.getContext('2d'),W=c.width,H=c.height;grid(x,W,H);const ok=S.on.sim&&S.c.ecg&&S.c.ch1,ok2=ok&&S.c.ch2&&S.on.def;
+ x.fillStyle='#6fa8d0';x.font='12px monospace';x.fillText('CH1 ECG',6,14);x.fillText('CH2 SYNC',6,H*.58);
+ const cur=idx;const trace=(b,mid,amp,col,en)=>{if(!en)return;x.strokeStyle=col;x.lineWidth=1.8;x.beginPath();let st=1;for(let i=0;i<N;i++){if(((i-cur+N)%N)<12){st=1;continue}const X=i/N*W,Y=mid-b[i]*amp;if(st){x.moveTo(X,Y);st=0}else x.lineTo(X,Y)}x.stroke()};
+ trace(b1,H*.33,H*.26,'#ffd84d',ok);trace(b2,H*.88,-H*.14,'#2ec4ff',ok2);
+ if(!ok){x.fillStyle='#ff8a5c';x.font='16px monospace';x.fillText(!S.on.sim?'NO SIGNAL – simulator OFF':'NO SIGNAL – connect ECG cables',W/2-130,H*.33)}
+ if(ok2&&false){}if(S.T-markT<9&&S.T-markT>=0){const X=markI/N*W;x.strokeStyle='#ff4d4d';x.setLineDash([5,4]);x.beginPath();x.moveTo(X,0);x.lineTo(X,H);x.stroke();x.setLineDash([])}
+ if(S.T<blank&&ok){x.fillStyle='#ff9f43';x.font='13px monospace';x.fillText('ECG BLANKED (shock in progress)',W/2-120,H*.2)}}
+function sync(){const B=(id,on)=>$(id).classList.toggle('on',!!on);
+ B('bDef',S.on.def);B('bSim',S.on.sim);B('mMan',S.mode=='manual');B('mSyn',S.mode=='sync');B('rN',S.rhythm=='normal');B('rA',S.rhythm=='afib');B('rV',S.rhythm=='vfib');
+ B('cEcg',S.c.ecg);B('cCh1',S.c.ch1);B('cCh2',S.c.ch2);B('cPad',S.c.pad);
+ $('ledP').className='led '+(S.on.def?'g':'');$('ledSim').className='led '+(S.on.sim?'g':'');
+ $('enV').textContent=S.en+' J';$('hrV').textContent=$('hr').value+' bpm';$('thAV').textContent=$('thA').value+' J';$('thVV').textContent=$('thV').value+' J';$('impV').textContent=$('imp').value+' Ω'}
+function ui(){const d=S.on.def;$('dSet').textContent=d?S.en+' J':'--';$('dRel').textContent=d?(S.charged/360*10).toFixed(1):'--';
+ const h=hrNow(),ecgOK=S.on.sim&&S.c.ecg;$('dHR').textContent=d&&ecgOK&&h?h:'--';$('dMode').textContent=d?(S.mode=='sync'?'SYNCH':'MANUAL'):'--';
+ $('dStat').textContent=!d?'OFF':pend?(S.mode=='sync'?'SYNC: waiting for R-wave…':'DISCHARGING…'):S.charging?'CHARGING '+Math.round(S.charged)+' / '+S.en+' J':S.charged>=S.en-.5&&S.charged>0?'READY – '+Math.round(S.charged)+' J – ALL CLEAR!':S.status;
+ $('chBar').style.width=(S.charged/360*100)+'%';const rdy=d&&S.charged>0&&!S.charging&&S.charged>=S.en-.5;
+ $('ledR').className='led '+(rdy?'g':S.charging?'y':'');$('ledS').className='led '+(d&&S.mode=='sync'&&ecgOK&&S.rhythm!='vfib'&&S.rhythm!='none'&&b2[(idx-1+N)%N]?'r':'');
+ if(rdy&&!flags.rd){flags.rd=1;beep();flags.ch=1}if(!rdy)flags.rd=0}
+const STEPS=[
+ ['Switch ON the DC defibrillator (connect power cord to mains).',()=>S.on.def],
+ ['Switch ON the DC defibrillator simulator.',()=>S.on.sim],
+ ['Connect simulator output to the ECG INPUT of the defibrillator, and ECG OUTPUT to DSO channel 1.',()=>S.c.ecg&&S.c.ch1],
+ ['Set mode switch: SYNCH for Normal / A-fib waveform (MANUAL for V-fib). Set SYNCH now.',()=>S.mode=='sync'],
+ ['Press the “Normal” switch on the simulator front panel.',()=>flags.nPress],
+ ['Observe the ECG on the DSO and connect the SYNCH output to DSO channel 2.',()=>S.rhythm!='none'&&S.c.ch2&&run],
+ ['Observe that the rising edge of the synch pulse coincides with the rising edge of the QRS complex.',null,()=>S.c.ch2&&S.mode=='sync'&&S.rhythm=='normal'&&run],
+ ['Press “A-fib” and adjust the threshold on the simulator back panel.',()=>flags.aPress&&flags.thr],
+ ['Observe the A-fib waveform on the DSO (irregular RR, no P-waves, fibrillatory baseline).',null,()=>S.rhythm=='afib'&&run],
+ ['Press CHARGE and charge to an energy level (e.g. 300 J) until READY.',()=>flags.ch&&S.en>=0],
+ ['Note the value on the front-panel display (relative units).',null,()=>flags.ch],
+ ['Connect the PATIENT output of the defibrillator to the simulator top panel.',()=>S.c.pad],
+ ['With mode in SYNCH, discharge the energy; observe the corrected ECG. If not corrected, charge to a higher energy and repeat.',()=>flags.af],
+ ['Select “V-fib”, set mode to MANUAL and repeat the above procedure.',()=>flags.vf]];
+function renderSteps(){const o=$('steps');const cur=done.findIndex(x=>!x);o.innerHTML=STEPS.map((s,i)=>`<li class="${done[i]?'done':i==cur?'cur':''}"><span class="chk">${done[i]?'✓':i+1}</span><span>${s[0]}${s[2]&&i==cur?` <button class="sm" onclick="confirmStep(${i})">I observed this</button>`:''}</span></li>`).join('');
+ $('done').textContent=cur<0?'✔ Experiment complete — review the Observation Table and take the quiz.':''}
+function confirmStep(i){if(STEPS[i][2]()){done[i]=1;renderSteps()}else log('Prerequisite not met (check connections, mode, rhythm and press Start).','#ff9f43')}
+function checkSteps(){let ch=0;STEPS.forEach((s,i)=>{if(!done[i]&&s[1]&&done.slice(0,i).every(Boolean)&&s[1]()){done[i]=1;ch=1}});if(ch)renderSteps()}
+function setRhythm(r){if(!S.on.sim)return log('Switch ON the simulator first.','#ff9f43');S.rhythm=r;lastR=S.T-.3;nextR=S.T+.3;rt=[];if(r=='normal')flags.nPress=1;if(r=='afib')flags.aPress=1;
+ const need=r=='vfib'?'manual':'sync';if(S.mode!=need)log('Manual step 4: '+NAME[r]+' → '+need.toUpperCase()+' mode should be selected.','#ff9f43');log('Simulator: '+NAME[r]+' selected.');sync()}
+const tog=(k,l)=>$(k).onclick=()=>{S.c[l]=!S.c[l];log($(k).textContent+(S.c[l]?' — connected':' — disconnected'));sync()};
+$('bDef').onclick=()=>{S.on.def=!S.on.def;if(!S.on.def){S.charged=0;S.charging=false;pend=0}S.status='SELF-TEST OK';sync()};
+$('bSim').onclick=()=>{S.on.sim=!S.on.sim;if(!S.on.sim)S.rhythm='none';sync()};
+$('mMan').onclick=()=>{S.mode='manual';sync()};$('mSyn').onclick=()=>{S.mode='sync';sync()};
+$('rN').onclick=()=>setRhythm('normal');$('rA').onclick=()=>setRhythm('afib');$('rV').onclick=()=>setRhythm('vfib');
+tog('cEcg','ecg');tog('cCh1','ch1');tog('cCh2','ch2');tog('cPad','pad');
+$('hr').oninput=e=>{S.hr=+e.target.value;sync()};
+['thA','thV'].forEach(i=>$(i).oninput=()=>{flags.thr=1;sync()});$('imp').oninput=sync;
+$('en').oninput=e=>{S.en=+e.target.value;if(S.charged&&S.charged!=S.en){S.charged=0;S.charging=false;log('Energy changed — capacitor dumped; press CHARGE again.','#ff9f43')}sync()};
+document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{$('en').value=b.dataset.e;$('en').oninput({target:$('en')})});
+$('wave').onchange=()=>log('Pulse type: '+$('wave').selectedOptions[0].text);
+$('bCharge').onclick=()=>{if(!S.on.def)return msg('Defibrillator is OFF.');if(!run)return msg('Press Start first.');S.charging=true;S.charged=S.charged>S.en?0:S.charged;log('Charging to '+S.en+' J…')};
+$('bShock').onclick=pressShock;
+$('bDisarm').onclick=()=>{S.charged=0;S.charging=false;pend=0;S.status='DISARMED – internal dump';log('Disarmed: stored energy dumped internally.')};
+$('bStart').onclick=()=>{run=true;$('runst').textContent='Running';log('Simulation started.')};
+$('bPause').onclick=()=>{run=false;$('runst').textContent='Paused';log('Simulation paused.')};
+$('bReset').onclick=()=>{init();renderSteps();resetQuiz()};
+$('clrT').onclick=()=>{rows=[];renderRows()};
+function frame(now){const dt=Math.min(.05,(now-tPrev)/1000||0);tPrev=now;
+ if(run){acc+=dt*FS;while(acc>=1){acc--;stepSim()}if(S.charging){S.charged=Math.min(S.en,S.charged+150*dt);if(S.charged>=S.en)S.charging=false}}
+ drawDSO();ui();checkSteps();requestAnimationFrame(frame)}
+$('runst').textContent='Stopped — press Start, then follow the procedure.';
+const Q=[
+['Why is a defibrillator used?',['To speed up a slow heart','To reverse ventricular fibrillation by a high-energy shock','To record ECG','To measure blood pressure'],1,'A high-energy DC shock makes all muscle fibres contract together so the normal intrinsic pulse can restore a coordinated rhythm.'],
+['Within roughly how long must V-fib be reversed to avoid irreversible brain damage or death?',['5 seconds','5 minutes','50 minutes','5 hours'],1,'Loss of cardiac output leads to irreversible damage if fibrillation is not reversed within about 5 minutes.'],
+['Which mode is used for Normal / A-fib waveforms per the manual?',['MANUAL','SYNCH','Either, no difference','Neither'],1,'Synch mode times the discharge to the R-wave. Manual mode is used for V-fib, where there is no QRS to synchronise to.'],
+['In the circuit, what is the role of the inductor?',['Charges the capacitor','Slows the discharge, giving a physiologically favourable pulse shape','Rectifies AC','Measures the ECG'],1,'The inductor’s counter-voltage slows the capacitor discharge. Its own resistance dissipates a part of the energy.'],
+['Typical resistance the patient presents to the defibrillating pulse (≈80 cm² electrodes)?',['5–10 Ω','50–100 Ω','5–10 kΩ','1 MΩ'],1,'The patient is treated as a purely ohmic load of about 50–100 Ω.'],
+['Which needs higher energy?',['Internal defibrillation','External defibrillation','Both equal','Neither'],1,'External shocks must pass through the chest wall, so higher voltage/energy than internal (open-chest) is required.'],
+['Where does the sync pulse’s rising edge appear relative to the ECG?',['Coinciding with the rising edge of the QRS complex','On the T-wave','On the P-wave','Random'],0,'The synch output marks the R-wave so the shock avoids the vulnerable T-wave period.'],
+['Which pulse type is reported to give higher defibrillation efficacy?',['Monophasic','Biphasic','Sinusoidal','Square-wave AC'],1,'Studies suggest biphasic pulses are more effective than monophasic ones.'],
+['Why does the ECG trace go flat just after the shock?',['Patient died','The cardiograph input is blocked/disconnected for protection during the shock','DSO fault','Simulator off'],1,'The ECG amplifier is blocked during the shock period to protect it from the high-energy pulse.']];
+let ans;function resetQuiz(){ans={};$('qRes').textContent='';$('quiz').innerHTML=Q.map((q,i)=>`<div class="q"><b>${i+1}. ${q[0]}</b>${q[1].map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}" onchange="answer(${i},${j})"> ${o}</label>`).join('')}<div class="exp" id="ex${i}" hidden></div></div>`).join('')}
+function answer(i,j){ans[i]=j;const e=$('ex'+i);e.hidden=false;const ok=j==Q[i][2];e.innerHTML=(ok?'<span class="ok">✓ Correct.</span> ':'<span class="bad">✗ Incorrect. Answer: '+Q[i][1][Q[i][2]]+'.</span> ')+Q[i][3];document.getElementsByName('q'+i).forEach(r=>r.disabled=true)}
+$('qScore').onclick=()=>{const s=Object.keys(ans).filter(i=>ans[i]==Q[i][2]).length;$('qRes').textContent=`Score: ${s} / ${Q.length} (${Object.keys(ans).length} answered)`};
+init();renderSteps();resetQuiz();requestAnimationFrame(frame);
+</script></body></html>

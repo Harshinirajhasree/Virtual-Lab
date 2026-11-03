@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ex. 10 Study of Ventilators: Virtual Lab</title>
+<style>
+:root{--bg:#eef3f7;--card:#fff;--ink:#0f2233;--mut:#587084;--line:#d3dde6;--acc:#0b7a9c;--ok:#15803d;--bad:#d62839;--warn:#b45309;--soft:#e6f1f6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0a1118;--card:#111b25;--ink:#e5eef6;--mut:#8ea4b8;--line:#22333f;--acc:#3cc4ee;--ok:#4ade80;--bad:#ff6b78;--warn:#fbbf24;--soft:#16273a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0a1118;--card:#111b25;--ink:#e5eef6;--mut:#8ea4b8;--line:#22333f;--acc:#3cc4ee;--ok:#4ade80;--bad:#ff6b78;--warn:#fbbf24;--soft:#16273a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+header{padding:16px 18px 6px;max-width:1280px;margin:auto}
+h1{font-size:22px;margin:0 0 2px;letter-spacing:.2px}h2{font-size:15px;margin:0 0 10px}
+.sub{color:var(--mut);margin:0}
+.sim{display:inline-block;margin-top:8px;padding:3px 10px;border:1px solid var(--warn);color:var(--warn);border-radius:99px;font-size:12.5px}
+main{max-width:1280px;margin:auto;padding:8px 18px 30px}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(290px,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:920px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px;min-width:0}
+.grid .card{margin-bottom:0}.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+button,select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--acc)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button.on{background:var(--acc);color:#04202b;border-color:var(--acc);font-weight:600}
+button.go{background:var(--ok);color:#fff;border-color:var(--ok)}button.go:hover{filter:brightness(1.1)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+svg.scene{width:100%;height:auto;display:block}
+.sv{font-family:"Consolas","Courier New",monospace}
+canvas{width:100%;height:330px;display:block;border-radius:8px;border:1px solid var(--line)}
+.mon{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px;margin-top:10px}
+.mon div{background:#05090d;border-radius:8px;padding:6px 9px}.mon b{display:block;font:600 19px "Consolas","Courier New",monospace}.mon span{font-size:11.5px;color:#8fa3b6}
+.alarms{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;margin-top:8px}
+.al{padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;background:var(--bad);color:#fff;animation:bl .9s infinite}.al.w{background:var(--warn);animation:none}
+@keyframes bl{50%{opacity:.45}}@media(prefers-reduced-motion:reduce){.al{animation:none}}
+label{display:flex;justify-content:space-between;font-size:13.5px;margin-top:9px}label output{font:600 13.5px "Consolas",monospace;color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.note{font-size:12.5px;color:var(--mut);margin:6px 0 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tab{display:none}.tab.show{display:block}
+ol.steps{margin:0;padding:0;list-style:none}ol.steps li{display:flex;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer}
+ol.steps li.done{opacity:.65;border-color:var(--ok)}ol.steps li.cur{background:var(--soft);border-color:var(--acc)}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--mut);flex:none;display:grid;place-items:center;font-size:13px}.done .chk{background:var(--ok);border-color:var(--ok);color:#fff}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border:1px solid var(--line);padding:5px 7px;text-align:center}th{background:var(--soft)}
+.sc{overflow-x:auto}
+.q{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}.q p{margin:0 0 6px;font-weight:600}
+.q button{display:block;width:100%;text-align:left;margin-top:5px}.q button.right{border-color:var(--ok);background:var(--ok);color:#fff}.q button.wrong{border-color:var(--bad);background:var(--bad);color:#fff}
+.fb{font-size:13.5px;margin-top:6px;color:var(--mut)}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}.calc div{background:var(--soft);border-radius:8px;padding:8px 10px}.calc code{font-family:"Consolas",monospace;color:var(--acc)}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0f2233;color:#fff;padding:9px 16px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;max-width:92vw;text-align:center}
+#toast.s{opacity:1}
+.tube{fill:none;stroke-linecap:round;stroke-width:9}.fl{fill:none;stroke:#fff;stroke-width:3;stroke-dasharray:3 14;stroke-linecap:round}
+</style></head><body>
+<header><h1>Ex. 10: Study of Ventilators, Virtual Lab</h1>
+<p class="sub">Positive-pressure ventilator with a test lung. Follows the lab manual (Khandpur, Handbook of Biomedical Instrumentation, Ch. 33).</p>
+<span class="sim">All numbers are SIMULATED from a simple one-compartment lung model. Not for clinical use.</span></header>
+<main>
+<div class="grid">
+<div class="col">
+ <section class="card"><h2>Ventilator, breathing circuit and test lung</h2>
+ <svg class="scene" viewBox="0 0 780 300" role="img" aria-label="Ventilator connected to a test lung">
+ <rect x="15" y="14" width="250" height="272" rx="14" fill="#1b2a38" stroke="#3b5368" stroke-width="2"/>
+ <rect x="30" y="28" width="220" height="108" rx="7" fill="#05090d"/>
+ <g class="sv" fill="#7fe0ff"><text id="sMode" x="40" y="48" font-size="14" font-weight="700">CMV</text><text id="sStat" x="140" y="48" font-size="12" fill="#ffd34d">STANDBY</text>
+ <text x="40" y="76" font-size="11" fill="#8fa3b6">Ppeak</text><text id="sP" x="40" y="98" font-size="22" fill="#ffd34d">--</text>
+ <text x="110" y="76" font-size="11" fill="#8fa3b6">VT mL</text><text id="sV" x="110" y="98" font-size="22" fill="#38bdf8">--</text>
+ <text x="180" y="76" font-size="11" fill="#8fa3b6">f/min</text><text id="sF" x="180" y="98" font-size="22" fill="#4ade80">--</text>
+ <text x="40" y="124" font-size="11" fill="#8fa3b6">PEEP</text><text id="sPe" x="75" y="124" font-size="12">5</text><text x="110" y="124" font-size="11" fill="#8fa3b6">FiO₂</text><text id="sFi" x="145" y="124" font-size="12">40%</text><text x="185" y="124" font-size="11" fill="#8fa3b6">I:E</text><text id="sIE" x="206" y="124" font-size="12">--</text></g>
+ <g transform="translate(95 208)"><circle r="44" fill="#0e1822" stroke="#3b5368" stroke-width="3"/>
+ <g stroke="#6d8aa0" stroke-width="2"><path d="M-33 26 L-38 30M-40 0 L-46 0M-33-26 L-38-30M0-40 L0-46M33-26 L38-30M40 0 L46 0M33 26 L38 30"/></g>
+ <line id="needle" x1="0" y1="0" x2="0" y2="-34" stroke="#ff5964" stroke-width="3" stroke-linecap="round"/><circle r="5" fill="#ff5964"/>
+ <text y="30" text-anchor="middle" font-size="9" fill="#8fa3b6">Paw cmH₂O</text></g>
+ <g id="k1" transform="translate(195 180)"><circle r="19" fill="#2a3e50" stroke="#6d8aa0" stroke-width="2"/><line y2="-15" stroke="#7fe0ff" stroke-width="3"/></g>
+ <g id="k2" transform="translate(225 240)"><circle r="16" fill="#2a3e50" stroke="#6d8aa0" stroke-width="2"/><line y2="-12" stroke="#7fe0ff" stroke-width="3"/></g>
+ <text x="170" y="213" font-size="10" fill="#8fa3b6">VT</text><text x="205" y="271" font-size="10" fill="#8fa3b6">Rate</text>
+ <circle id="led" cx="245" cy="40" r="0" fill="#4ade80"/>
+ <rect x="22" y="262" width="52" height="16" rx="3" fill="#2d6a8a"/><text x="48" y="274" font-size="10" text-anchor="middle" fill="#fff">O₂ in</text>
+ <rect x="82" y="262" width="52" height="16" rx="3" fill="#59708a"/><text x="108" y="274" font-size="10" text-anchor="middle" fill="#fff">Air in</text>
+ <circle cx="265" cy="90" r="8" fill="#3b5368"/><circle cx="265" cy="200" r="8" fill="#3b5368"/>
+ <g id="circ"><path id="pI" class="tube" stroke="#3b82c4" d="M265 90 H330 C400 90 420 130 470 140 L520 150"/><path id="pE" class="tube" stroke="#e08a2c" d="M520 150 L480 172 C430 195 400 222 340 205 L265 200"/>
+ <path id="pC" class="tube" stroke="#7b8b99" d="M520 150 H690 V128"/>
+ <path id="fI" class="fl" d="M265 90 H330 C400 90 420 130 470 140 L520 150"/><path id="fE" class="fl" d="M520 150 L480 172 C430 195 400 222 340 205 L265 200"/><path id="fC" class="fl" d="M520 150 H690 V128"/></g>
+ <circle cx="520" cy="150" r="11" fill="#5b6f80"/>
+ <text x="330" y="70" font-size="12" fill="#3b82c4">Inspiratory limb</text><text x="330" y="240" font-size="12" fill="#e08a2c">Expiratory limb</text><text x="505" y="186" font-size="12" fill="currentColor">Y-piece</text>
+ <rect x="590" y="50" width="180" height="230" rx="16" fill="none" stroke="#6d8aa0" stroke-width="2" stroke-dasharray="6 5"/>
+ <g id="lung"><g id="lungS" transform="translate(690 190)"><ellipse rx="38" ry="48" fill="#e9758a" stroke="#a63a50" stroke-width="3"/><path d="M-16-26 Q0-10-16 8M16-26 Q0-10 16 8" stroke="#a63a50" fill="none" stroke-width="2"/></g></g>
+ <text x="680" y="272" font-size="12" text-anchor="middle" fill="currentColor">Test lung</text>
+ <text id="discT" x="600" y="140" font-size="13" font-weight="700" fill="#ff5964" opacity="0">CIRCUIT DISCONNECTED</text>
+ </svg>
+ <div class="row" style="margin-top:8px">
+  <button id="bGas">1 Connect gas supply</button><button id="bTub">2 Connect tubing + test lung</button><button id="bPow">3 Power ON</button><button id="bDis">Disconnect test</button>
+ </div>
+ <div class="row" style="margin-top:8px">
+  <button id="bStart" class="go">▶ Start</button><button id="bPause">⏸ Pause</button><button id="bReset">↺ Reset</button>
+  <label style="margin:0;gap:6px;align-items:center">Speed <select id="spd"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+ </div>
+ </section>
+ <section class="card"><h2>Ventilator screen: pressure, flow, volume (12 s window)</h2>
+ <canvas id="cv" aria-label="Real-time pressure, flow and volume waveforms"></canvas>
+ <div class="alarms" id="alarms"></div>
+ <div class="mon" id="mon"></div></section>
+</div>
+<div class="col"><section class="card"><h2>Controls</h2>
+ <label>Ventilation mode</label><select id="mode" style="width:100%"><option>CMV</option><option>Assist</option><option>Assist/Control</option><option>IMV</option><option>SIMV</option></select>
+ <p class="note" id="mdesc"></p><div id="ctl"></div>
+ <label>Test lung model</label><select id="lung2" style="width:100%"><option value="50,10">Normal (C 50 mL/cmH₂O, R 10)</option><option value="25,10">Stiff lung (C 25, R 10)</option><option value="60,25">Obstructed (C 60, R 25)</option></select>
+ <p class="note">VT = flow × inspiratory time. Changing VT, flow or Ti keeps the other two consistent. “Patient effort rate” is the simulated patient’s own breathing; 0 means apnoeic.</p></section>
+ <section class="card"><h2>Live calculations (simulated)</h2><div class="calc" id="calc"></div></section>
+</div></div>
+
+<section class="card"><div class="tabs" id="tabs"><button data-t="t1" class="on">Procedure</button><button data-t="t2">Observation table</button><button data-t="t3">Quiz</button><button data-t="t4">Theory</button></div>
+<div class="tab show" id="t1"><p class="note" style="margin:0 0 8px">Steps tick automatically when you do them. Click a step to tick or untick it manually.</p><ol class="steps" id="steps"></ol></div>
+<div class="tab" id="t2"><div class="row" style="margin-bottom:8px"><button id="bRec" class="go">Record current reading</button><button id="bDel">Delete last</button><button id="bClr">Clear table</button></div>
+<div class="sc"><table><thead><tr><th>S.No</th><th>Mode</th><th>f (bpm)</th><th>VT set (mL)</th><th>I:E</th><th>PEEP</th><th>FiO₂ %</th><th>Peak P</th><th>VT del. (mL)</th><th>VE = VT×f (L/min)</th><th>VE monitor</th></tr></thead><tbody id="tb"></tbody></table></div>
+<p class="note">Calculated VE uses delivered VT × set rate. Monitor VE is averaged over recent breaths. They differ when spontaneous breaths or air trapping occur. Values are simulated.</p></div>
+<div class="tab" id="t3"><div id="quiz"></div><p id="qs" style="font-weight:700"></p><button id="qr">Restart quiz</button></div>
+<div class="tab" id="t4"><div class="sc"><table><thead><tr><th>Mode</th><th>Breath started by</th><th>Key feature</th><th>Typical use</th></tr></thead><tbody>
+<tr><td>CMV</td><td>Machine</td><td>Preset VT and rate, ignores patient</td><td>Patient cannot breathe</td></tr>
+<tr><td>Assist</td><td>Patient</td><td>Triggered by effort</td><td>Weak but present effort</td></tr>
+<tr><td>Assist/Control</td><td>Patient or timer</td><td>Timer backs up the trigger</td><td>Critical care</td></tr>
+<tr><td>IMV</td><td>Machine</td><td>Fixed-interval mandatory, spontaneous in gaps</td><td>Partial support</td></tr>
+<tr><td>SIMV</td><td>Machine, synchronized</td><td>Mandatory breath timed to effort in last part of cycle</td><td>Weaning</td></tr></tbody></table></div>
+<p class="note">Manual specifications (reference): tidal volume 0.010 to 4.8 L; FiO₂ 21 to 91 %; pressure relief 0 to 100 cmH₂O; sigh 150 % of VT; supply 3.5 bar (2 to 6 bar); ambient-air valve opens below −10 cmH₂O; high-pressure valve above 110 cmH₂O; high-frequency ventilation 5 to 20 Hz. This simulator uses narrower ranges for teaching.</p>
+<p class="note">Model: inspiration with constant flow gives Paw = PEEP + V/C + R × flow. Expiration is passive: V decays with time constant R × C. Dead space assumed 150 mL. If expiration is too short, volume stays in the lung (air trapping / auto-PEEP).</p></div>
+</section></main><div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id),clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const CFG=[["vt","Tidal volume","mL",200,800,10,500],["rate","Respiratory rate","bpm",6,30,1,12],["flow","Inspiratory flow","L/s",0.2,1.5,0.05,0.5],["ti","Inspiratory time","s",0.3,2.5,0.05,1],["peep","PEEP","cmH₂O",0,20,1,5],["fio2","FiO₂","%",21,91,1,40],["sens","Trigger sensitivity (−)","cmH₂O",0.5,5,0.5,2],["plim","Pressure limit","cmH₂O",20,60,1,40],["eff","Patient effort rate","bpm",0,30,1,0]];
+const MD={"CMV":"Machine alone starts every breath at the set rate. Ignores patient effort.","Assist":"Each patient effort (stronger than the trigger sensitivity) starts a breath. No effort means no breath.","Assist/Control":"Patient effort triggers a breath. If none arrives, the timer delivers one at the set rate.","IMV":"Mandatory breaths at fixed intervals. Patient breathes spontaneously in between, unsynchronized.","SIMV":"Mandatory breath is timed to patient effort in the last part of the interval. Spontaneous breaths in between."};
+const P={mode:"CMV"},L={c:50,r:10},VD=150,DT=.02,N=600,EFFORT=3;
+const STEPS=["Inspect ventilator, power cord, tubing; connect the gas supply with the unit off.","Connect inspiratory and expiratory limbs and attach the test lung at the Y-piece.","Switch on, wait for the self-test, note the display.","Select a ventilation mode (e.g. CMV, A/C or SIMV).","Set rate, tidal volume (flow and Ti), PEEP, FiO₂, trigger sensitivity and pressure limit.","Start ventilation; watch the test lung and the pressure, flow and volume waveforms.","Record peak pressure, delivered VT, rate and FiO₂ in the observation table.","Change one setting at a time (PEEP, I:E or rate); note the effect; record again.","Calculate VE = VT × f for each reading and compare it with the monitor VE.","Briefly disconnect the tubing to see the alarms, then reconnect.","Put the ventilator on standby and switch it off."];
+let S,B,done=[],gas=0,tub=0,pow=0,ready=0,speed=1,acc=0,last=0,rows=[],tick=0;
+function toast(m){const t=$("toast");t.textContent=m;t.className="s";clearTimeout(toast.h);toast.h=setTimeout(()=>t.className="",2400)}
+function dn(n){if(!done[n]){done[n]=1;steps()}}
+function steps(){$("steps").innerHTML=STEPS.map((s,i)=>`<li data-i="${i}" class="${done[i+1]?"done":i+1==cur()?"cur":""}"><span class="chk">${done[i+1]?"✓":i+1}</span><span>${s}</span></li>`).join("")}
+function cur(){for(let i=1;i<=11;i++)if(!done[i])return i;return 0}
+function resetSim(){S={t:0,phase:"exp",phaseT:1,kind:"mand",vol:0,flow:0,paw:0,lastMand:0,nextE:1,run:0,log:[],vtDel:0,peak:0,plat:0,bpk:0,v0:0,hp:-99,missed:-99,lastB:0,apeep:0,disc:S?S.disc:0,started:0};B={p:new Float32Array(N),f:new Float32Array(N),v:new Float32Array(N),i:0}}
+function defaults(){CFG.forEach(c=>P[c[0]]=c[6]);P.mode="CMV";$("mode").value="CMV";$("lung2").value="50,10";L.c=50;L.r=10;syncUI()}
+function syncUI(){CFG.forEach(c=>{$("r_"+c[0]).value=P[c[0]];$("o_"+c[0]).textContent=(+P[c[0]]).toFixed(c[5]<1?2:0)+" "+c[2]});$("mdesc").textContent=MD[P.mode]}
+function link(k){if(k=="vt"||k=="flow"){let t=P.vt/1000/P.flow;if(t>2.5||t<.3){t=clamp(t,.3,2.5);P.vt=clamp(Math.round(P.flow*t*100)*10,200,800)}P.ti=Math.round(P.vt/1000/P.flow*20)/20}
+ else if(k=="ti"){P.flow=clamp(Math.round(P.vt/1000/P.ti*20)/20,.2,1.5);P.vt=clamp(Math.round(P.flow*P.ti*100)*10,200,800)}}
+$("ctl").innerHTML=CFG.map(c=>`<label for="r_${c[0]}">${c[1]}<output id="o_${c[0]}"></output></label><input type="range" id="r_${c[0]}" min="${c[3]}" max="${c[4]}" step="${c[5]}">`).join("");
+CFG.forEach(c=>$("r_"+c[0]).addEventListener("input",e=>{P[c[0]]=+e.target.value;link(c[0]);syncUI();if(ready)dn(5)}));
+$("mode").onchange=e=>{P.mode=e.target.value;$("mdesc").textContent=MD[P.mode];S.lastMand=S.t-60/P.rate;if(ready)dn(4)};
+$("lung2").onchange=e=>{const v=e.target.value.split(",");L.c=+v[0];L.r=+v[1]};
+$("bGas").onclick=()=>{if(pow)return toast("Switch the unit off before changing the gas connection.");gas=!gas;if(gas)dn(1);ui()};
+$("bTub").onclick=()=>{tub=!tub;if(tub)dn(2);else{S.disc=0;S.vol=0}ui()};
+$("bPow").onclick=()=>{if(!pow){if(!gas||!tub)return toast("Connect the gas supply and the tubing with the test lung first.");pow=1;ready=0;ui();setTimeout(()=>{if(pow){ready=1;dn(3);ui();toast("Self-test passed. Default settings loaded.")}},2200)}else{pow=0;ready=0;S.run=0;if(done[6])dn(11);ui()}};
+$("bDis").onclick=()=>{if(!tub)return toast("Connect the tubing first.");S.disc=!S.disc;if(S.disc){dn(10);S.vol=0}ui()};
+$("bStart").onclick=()=>{if(!ready)return toast("Complete steps 1 to 3 first: gas, tubing, power on and self-test.");if(!S.started){S.started=1;S.lastMand=S.t-60/P.rate;S.nextE=S.t+1.5}S.run=1;dn(6);ui()};
+$("bPause").onclick=()=>{S.run=0;ui()};
+$("bReset").onclick=()=>{done=[];gas=tub=pow=ready=0;rows=[];S=null;resetSim();defaults();$("spd").value=1;speed=1;table();steps();ui();toast("Lab reset.")};
+$("spd").onchange=e=>speed=+e.target.value;
+function ui(){$("bGas").classList.toggle("on",!!gas);$("bGas").textContent=gas?"1 Gas supply connected":"1 Connect gas supply";$("bTub").classList.toggle("on",!!tub);$("bTub").textContent=tub?"2 Tubing + lung connected":"2 Connect tubing + test lung";$("bPow").classList.toggle("on",!!pow);$("bPow").textContent=pow?"3 Power ON (click to switch off)":"3 Power ON";$("bDis").classList.toggle("on",!!S.disc);$("bDis").textContent=S.disc?"Reconnect tubing":"Disconnect test";$("bPause").classList.toggle("on",pow&&ready&&!S.run&&S.started);$("bStart").classList.toggle("on",!!S.run)}
+function startB(k){S.phase="insp";S.kind=k;S.phaseT=0;S.v0=S.vol;S.bpk=0;S.lastB=S.t;S.apeep=S.vol*1000/L.c;if(k=="mand")S.lastMand=S.t}
+function endI(){const v=S.vol-S.v0;S.log.push({t:S.t,v:v*1000});if(S.kind=="mand"){S.vtDel=v*1000;S.peak=S.bpk;S.phase="pause";S.phaseT=0}else{S.phase="exp";S.phaseT=0}}
+function step(){const dt=DT,C=L.c/1000,R=L.r,per=60/P.rate,tiE=Math.min(P.ti,.8*per);S.t+=dt;S.phaseT+=dt;
+ let eff=false;if(P.eff>0&&S.t>=S.nextE){eff=true;S.nextE=S.t+60/P.eff*(.85+Math.random()*.3)}
+ if(S.phase=="exp"){const idle=S.phaseT>.4,trig=eff&&idle&&P.sens<=EFFORT,sm=S.t-S.lastMand,m=P.mode;let s=null;
+  if(eff&&idle&&!trig&&m!="CMV"&&m!="IMV")S.missed=S.t;
+  if(m=="CMV"){if(sm>=per)s="mand"}else if(m=="Assist"){if(trig)s="mand"}
+  else if(m=="Assist/Control"){if(trig||sm>=per)s="mand"}
+  else if(m=="IMV"){if(sm>=per)s="mand";else if(eff&&idle)s="spont"}
+  else{if(sm>=per)s="mand";else if(eff&&idle)s=(sm>=.75*per&&trig)?"mand":"spont"}
+  if(s)startB(s)}
+ let ph=S.phase;
+ if(ph=="insp"){if(S.kind=="mand"){S.flow=P.flow;if(S.disc)S.paw=.3+Math.random()*.4;else{S.vol+=S.flow*dt;S.paw=P.peep+S.vol/C+R*S.flow}
+   S.bpk=Math.max(S.bpk,S.paw);if(S.paw>P.plim&&!S.disc){S.hp=S.t;S.paw=P.plim;endI()}else if(S.phaseT>=tiE)endI()}
+  else{const x=Math.PI*S.phaseT/1.3;S.flow=.423*Math.sin(x);if(S.disc)S.paw=.3;else{S.vol+=S.flow*dt;S.paw=P.peep-2.5*Math.sin(x)}if(S.phaseT>=1.3)endI()}}
+ else if(ph=="pause"){S.flow=0;S.paw=S.disc?.3:P.peep+S.vol/C;S.plat=S.paw;if(S.phaseT>=.1){S.phase="exp";S.phaseT=0}}
+ else{const tau=R*C;S.flow=-S.vol/tau;S.vol*=Math.exp(-dt/tau);S.paw=S.disc?.3:P.peep+1.2*-S.flow}
+ const i=B.i;B.p[i]=S.paw;B.f[i]=S.flow*60;B.v[i]=S.vol*1000;B.i=(i+1)%N;
+ if(S.log.length&&S.log[0].t<S.t-60)S.log.shift()}
+const cv=$("cv");
+function draw(){const w=cv.clientWidth,h=cv.clientHeight,d=devicePixelRatio||1;if(cv.width!=Math.round(w*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d)}
+ const g=cv.getContext("2d");g.setTransform(d,0,0,d,0,0);g.fillStyle="#05090d";g.fillRect(0,0,w,h);const ph=h/3;
+ [["Paw (cmH₂O)",B.p,-5,50,"#ffd34d",10],["Flow (L/min)",B.f,-90,90,"#4ade80",30],["Volume (mL)",B.v,0,1000,"#38bdf8",250]].forEach((t,k)=>{const y0=k*ph,pl=(v)=>y0+ph-5-(v-t[2])/(t[3]-t[2])*(ph-12);
+  g.strokeStyle="#1a2a37";g.lineWidth=1;g.fillStyle="#6f8799";g.font="11px sans-serif";
+  for(let v=Math.ceil(t[2]/t[5])*t[5];v<=t[3];v+=t[5]){g.beginPath();g.moveTo(0,pl(v));g.lineTo(w,pl(v));g.stroke();g.fillText(v,w-30,pl(v)-2)}
+  g.strokeStyle="#34495a";g.beginPath();g.moveTo(0,y0);g.lineTo(w,y0);g.stroke();g.fillStyle=t[4];g.fillText(t[0],6,y0+13);
+  g.strokeStyle=t[4];g.lineWidth=2;g.beginPath();for(let j=0;j<N;j++){const v=t[1][(B.i+j)%N],x=j/(N-1)*w,y=pl(v);j?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()})}
+const MONS=[["Ppeak","cmH₂O","pk"],["Pplat","cmH₂O","pl"],["Pmean","cmH₂O","pm"],["VT delivered","mL","vt"],["Rate (total)","bpm","rr"],["VE monitor","L/min","ve"],["I:E","","ie"],["FiO₂","%","fi"],["Auto-PEEP","cmH₂O","ap"]];
+$("mon").innerHTML=MONS.map(m=>`<div><span>${m[0]} ${m[1]}</span><b id="m_${m[2]}">--</b></div>`).join("");
+let M={};
+function stats(){const w=Math.min(60,S.t),n=S.log.filter(b=>b.t>S.t-w);let pm=0;for(let j=0;j<500;j++)pm+=B.p[(B.i+N-1-j)%N];pm/=500;
+ const per=60/P.rate,te=per-P.ti,ready10=S.t>=10&&S.started;
+ M={pk:S.peak,pl:S.plat,pm,vt:S.vtDel,rr:ready10?n.length/w*60:null,ve:ready10?n.reduce((a,b)=>a+b.v,0)/w*60/1000:null,ie:"1:"+(Math.max(te,0)/P.ti).toFixed(1),fi:P.fio2,ap:S.vol*1000/L.c,per,te}}
+function upd(dtr){stats();const f=(v,d=0)=>v==null||!S.started?"--":v.toFixed(d);
+ $("m_pk").textContent=f(M.pk,1);$("m_pl").textContent=f(M.pl,1);$("m_pm").textContent=f(M.pm,1);$("m_vt").textContent=f(M.vt);$("m_rr").textContent=M.rr==null?"--":M.rr.toFixed(1);$("m_ve").textContent=M.ve==null?"--":M.ve.toFixed(2);$("m_ie").textContent=M.ie;$("m_fi").textContent=M.fi;$("m_ap").textContent=f(M.ap,1);
+ $("sMode").textContent=P.mode.replace("Assist/Control","A/C");$("sStat").textContent=!pow?"OFF":!ready?"SELF-TEST…":S.run?"VENTILATING":S.started?"PAUSED":"STANDBY";
+ $("sP").textContent=S.started?S.peak.toFixed(0):"--";$("sV").textContent=S.started?S.vtDel.toFixed(0):"--";$("sF").textContent=M.rr==null?"--":M.rr.toFixed(0);$("sPe").textContent=P.peep;$("sFi").textContent=P.fio2+"%";$("sIE").textContent=M.ie;
+ $("needle").setAttribute("transform","rotate("+clamp(-120+S.paw/60*240,-130,130)+")");
+ $("k1").setAttribute("transform","translate(195 180) rotate("+((P.vt-200)/600*270-135)+")");$("k2").setAttribute("transform","translate(225 240) rotate("+((P.rate-6)/24*270-135)+")");
+ $("led").setAttribute("r",pow?5:0);$("led").setAttribute("fill",ready?"#4ade80":"#ffd34d");
+ $("lungS").setAttribute("transform","translate(690 190) scale("+(1+.5*S.vol/.8)+")");
+ const fl=S.flow;tick+=dtr*speed;
+ [["fI",Math.max(fl,0)/.6,fl>0],["fC",Math.abs(fl)/.6,1],["fE",Math.max(-fl,0)/.4,fl<0]].forEach(a=>{const e=$(a[0]);e.style.opacity=tub&&S.run?clamp(a[1],0,1)*.9:0;
+  if(a[0]=="fE")e.style.strokeDashoffset=-tick*0+(-(S.eo=(S.eo||0)+Math.max(-fl,0)*dtr*speed*110));else if(a[0]=="fI")e.style.strokeDashoffset=-(S.io=(S.io||0)+Math.max(fl,0)*dtr*speed*110);else e.style.strokeDashoffset=-(S.co=(S.co||0)+fl*dtr*speed*110)});
+ $("circ").style.opacity=tub?1:.25;$("lung").style.opacity=tub?(S.disc?.4:1):.25;$("discT").setAttribute("opacity",S.disc&&tub?1:0);$("pC").style.opacity=S.disc?.3:1;
+ const A=[];const al=(m,w)=>A.push(`<span class="al ${w?"w":""}">${m}</span>`);
+ if(S.run||S.started){if(S.disc)al("CIRCUIT DISCONNECT / LOW PRESSURE");if(S.t-S.hp<6)al("HIGH PRESSURE: breath cut off");if(S.started&&S.vtDel<.5*P.vt&&!S.disc&&S.log.length)al("LOW VT");
+  if(S.run&&S.t-S.lastB>15)al("APNEA: no breath for 15 s");if(M.ap>1&&S.log.length)al("AUTO-PEEP: air trapping",1);if(M.te<P.ti)al("INVERTED I:E",1);if(P.ti>.8*M.per)al("Ti limited to 80 % of cycle",1);if(S.t-S.missed<4)al("Missed trigger: sensitivity too low",1)}
+ $("alarms").innerHTML=A.join("");
+ const nxt=cur();$("calc").innerHTML=`<div>Tidal volume<br><code>VT = flow × Ti = ${P.flow.toFixed(2)} × ${P.ti.toFixed(2)} = ${(P.flow*P.ti).toFixed(2)} L</code></div><div>Minute volume<br><code>VE = VT × f = ${(P.flow*P.ti).toFixed(2)} × ${P.rate} = ${(P.flow*P.ti*P.rate).toFixed(2)} L/min</code></div><div>Alveolar volume<br><code>VTalv = VT − VD = ${(P.flow*P.ti*1000).toFixed(0)} − ${VD} = ${(P.flow*P.ti*1000-VD).toFixed(0)} mL</code></div><div>Timing<br><code>Cycle ${M.per.toFixed(1)} s, Ti ${P.ti.toFixed(2)} s, Te ${M.te.toFixed(2)} s, I:E ${M.ie}</code></div><div>Expected pressure (model)<br><code>Ppeak ≈ PEEP + VT/C + R·flow = ${(P.peep+P.flow*P.ti*1000/L.c+L.r*P.flow).toFixed(1)} cmH₂O</code></div><div>Lung time constant<br><code>τ = R × C = ${(L.r*L.c/1000).toFixed(2)} s</code></div>`}
+function loop(ts){const dtr=Math.min((ts-last)/1000,.1);last=ts;if(S.run){acc+=dtr*speed;let n=0;while(acc>=DT&&n++<40){step();acc-=DT}}upd(dtr);draw();requestAnimationFrame(loop)}
+function table(){$("tb").innerHTML=rows.map((r,i)=>`<tr><td>${i+1}</td>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="11">No readings yet. Start ventilation, then record.</td></tr>`}
+$("bRec").onclick=()=>{if(!S.started||S.log.length<2)return toast("Run the ventilator for a few breaths before recording.");const ve=(S.vtDel*P.rate/1000).toFixed(2);
+ rows.push([P.mode,P.rate,P.vt,M.ie,P.peep,P.fio2,S.peak.toFixed(1),S.vtDel.toFixed(0),ve,M.ve==null?"--":M.ve.toFixed(2)]);table();dn(7);dn(9);
+ if(rows.length>1&&rows.some(r=>r[0]!=rows[0][0]||r[1]!=rows[0][1]||r[4]!=rows[0][4]||r[3]!=rows[0][3]))dn(8)};
+$("bDel").onclick=()=>{rows.pop();table()};$("bClr").onclick=()=>{rows=[];table()};
+$("steps").onclick=e=>{const li=e.target.closest("li");if(li){const n=+li.dataset.i+1;done[n]=!done[n];steps()}};
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x==b));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("show",t.id==b.dataset.t))});
+const Q=[["A flow of 0.6 L/s for an inspiratory time of 1 s at 12 breaths/min gives a minute volume of:",["0.6 L/min","7.2 L/min","12 L/min","72 L/min"],1,"VT = 0.6 × 1 = 0.6 L, then VE = VT × f = 0.6 × 12 = 7.2 L/min."],
+["Which mode times the mandatory breath to the patient’s own effort?",["CMV","IMV","SIMV","MMV"],2,"SIMV delivers a mandatory breath when effort is detected in the synchronizing window, so a machine breath does not land on a spontaneous one."],
+["A patient who cannot initiate any breath should be ventilated in:",["CMV","CPAP","Assist","ASB"],0,"CMV delivers a preset VT at a preset rate independent of effort."],
+["In Assist mode, what starts the breath?",["A timer","Slight negative pressure from the patient’s effort","A preset minute volume","Manual bag"],1,"A pressure sensor detects the small negative pressure of an inspiratory attempt. Sensitivity sets the effort needed."],
+["What does PEEP do?",["Stops inspiration","Keeps airway pressure above atmospheric at end expiration, improving oxygenation","Sets the rate","Increases dead space"],1,"PEEP raises end-expiratory lung volume and improves arterial oxygenation."],
+["In MMV, mandatory breaths are given:",["At regular intervals","Only when spontaneous ventilation falls below the preset minute volume","Every time the patient breathes","Never"],1,"Unlike SIMV, MMV breaths are not regular. They occur only when ventilation is insufficient."],
+["The safety ambient-air valve lets the patient breathe room air when circuit pressure falls below:",["−10 cmH₂O","0 cmH₂O","+10 cmH₂O","110 cmH₂O"],0,"It opens below −10 cmH₂O, or if the ventilator fails."],
+["Alveolar tidal volume is:",["VT + VD","VT × f","VT − VD","VD ÷ VT"],2,"Dead space gas does not take part in gas exchange, so VTalv = VT − VD."],
+["During positive-pressure inspiration the exhalation outlet is:",["Open","Closed to atmosphere","Connected to suction","Connected to the humidifier"],1,"The exhalation control system closes the outlet so pressure builds in the circuit."]];
+let qa=[];
+function quiz(){qa=[];$("qs").textContent="";$("quiz").innerHTML=Q.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p>${q[1].map((o,j)=>`<button data-q="${i}" data-o="${j}">${o}</button>`).join("")}<div class="fb" id="fb${i}"></div></div>`).join("")}
+$("quiz").onclick=e=>{const b=e.target.closest("button");if(!b)return;const i=+b.dataset.q,o=+b.dataset.o;if(qa[i]!=null)return;qa[i]=o==Q[i][2]?1:0;
+ b.parentNode.querySelectorAll("button").forEach((x,j)=>{if(j==Q[i][2])x.classList.add("right");else if(x==b)x.classList.add("wrong")});
+ $("fb"+i).textContent=(qa[i]?"Correct. ":"Not quite. ")+Q[i][3];const a=qa.filter(x=>x!=null).length;$("qs").textContent="Score: "+qa.filter(x=>x==1).length+" / "+Q.length+(a==Q.length?" (finished)":"")};
+$("qr").onclick=quiz;
+resetSim();defaults();steps();table();quiz();ui();requestAnimationFrame(t=>{last=t;loop(t)});
+</script></body></html>
